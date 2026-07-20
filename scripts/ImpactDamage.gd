@@ -1,6 +1,7 @@
 class_name ImpactDamage
 extends RefCounted
 
+const WARNING_IMPACT_SPEED := 850.0
 const SAFE_IMPACT_SPEED := 1200.0
 const LETHAL_IMPACT_SPEED := 1850.0
 const MAX_DAMAGE := 100
@@ -21,6 +22,14 @@ static func damage_for_speed(impact_speed: float) -> int:
 static func get_damage_ratio(impact_speed: float) -> float:
 	return clampf(
 		inverse_lerp(SAFE_IMPACT_SPEED, LETHAL_IMPACT_SPEED, impact_speed),
+		0.0,
+		1.0
+	)
+
+
+static func get_warning_ratio(impact_speed: float) -> float:
+	return clampf(
+		inverse_lerp(WARNING_IMPACT_SPEED, LETHAL_IMPACT_SPEED, impact_speed),
 		0.0,
 		1.0
 	)

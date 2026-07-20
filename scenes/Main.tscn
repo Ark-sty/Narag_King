@@ -1,10 +1,14 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/Game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/ControlsMenu.gd" id="2_controls"]
+[ext_resource type="Script" path="res://scripts/SpeedEdgeEffect.gd" id="3_speed_edge"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_game")
+
+[node name="SpeedEdgeEffect" type="CanvasLayer" parent="."]
+script = ExtResource("3_speed_edge")
 
 [node name="ControlsMenu" type="CanvasLayer" parent="."]
 script = ExtResource("2_controls")
