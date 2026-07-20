@@ -21,6 +21,7 @@ Godot 4 프로젝트용 2D 낙하 액션 프로토타입입니다.
 - 시작 씬: `scenes/Main.tscn`
 - 게임 로직/맵 생성: `scripts/Game.gd`
 - 충돌 속도 피해 계산: `scripts/ImpactDamage.gd`
+- 대각선 경사면 감속 계산: `scripts/DiagonalSlideResponse.gd`
 - 입력 설정 저장/복원: `scripts/InputBindings.gd`
 - 키 설정 UI: `scripts/ControlsMenu.gd`
 

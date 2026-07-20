@@ -1,6 +1,7 @@
 extends Node2D
 
 const IMPACT_DAMAGE = preload("res://scripts/ImpactDamage.gd")
+const DIAGONAL_SLIDE_RESPONSE = preload("res://scripts/DiagonalSlideResponse.gd")
 
 const WORLD_WIDTH := 960.0
 const WORLD_HEIGHT := 7800.0
@@ -30,6 +31,10 @@ const GRAB_SNAP_GAP := 1.5
 const GRAB_MODE_SIDE := 0
 const GRAB_MODE_EDGE := 1
 const GRAB_MODE_AUTO_EDGE := 2
+const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
+const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
+const DIAGONAL_SURFACE_SIZE := Vector2(320.0, 28.0)
+const DIAGONAL_SURFACE_COLOR := Color("#b64343")
 
 @onready var speed_edge_effect: SpeedEdgeEffect = $SpeedEdgeEffect
 
@@ -49,6 +54,7 @@ var state: String = "falling"
 var last_damage_msec: int = -1000
 var status_message_until_msec: int = 0
 var auto_grab_until_msec: int = 0
+var active_diagonal_surface: Object
 
 
 func _ready() -> void:
@@ -96,19 +102,50 @@ func _build_world() -> void:
 	_add_rect("StartCeiling", Vector2(WORLD_WIDTH * 0.5, -16.0), Vector2(WORLD_WIDTH, 32.0), Color.html("#56616b"), true, 0, false)
 	_add_rect("FinishFloor", Vector2(WORLD_WIDTH * 0.5, WORLD_HEIGHT + 18.0), Vector2(WORLD_WIDTH, 36.0), Color.html("#8fbf6a"), true, 0, false)
 
-	var platforms: Array[Array] = [
-		[Vector2(370, 360), Vector2(380, 32)], [Vector2(710, 610), Vector2(260, 32)], [Vector2(250, 850), Vector2(300, 32)], [Vector2(610, 1110), Vector2(320, 32)], [Vector2(420, 1390), Vector2(260, 32)],
-		[Vector2(210, 1720), Vector2(250, 30)], [Vector2(590, 1980), Vector2(360, 30)], [Vector2(790, 2280), Vector2(210, 30)], [Vector2(360, 2570), Vector2(330, 30)], [Vector2(650, 2920), Vector2(260, 30)],
-		[Vector2(450, 3240), Vector2(300, 30)], [Vector2(175, 3500), Vector2(230, 30)], [Vector2(720, 3750), Vector2(300, 30)], [Vector2(500, 4040), Vector2(260, 30)], [Vector2(260, 4380), Vector2(330, 30)],
-		[Vector2(690, 4720), Vector2(260, 28)], [Vector2(395, 5010), Vector2(300, 28)], [Vector2(760, 5310), Vector2(210, 28)], [Vector2(245, 5610), Vector2(250, 28)], [Vector2(560, 5900), Vector2(360, 28)],
-		[Vector2(320, 6240), Vector2(280, 28)], [Vector2(730, 6490), Vector2(250, 28)], [Vector2(470, 6800), Vector2(220, 28)], [Vector2(250, 7130), Vector2(260, 28)], [Vector2(585, 7460), Vector2(390, 28)],
+	var safe_platforms: Array[Array] = [
+		[Vector2(370, 360), Vector2(380, 32)],
+		[Vector2(710, 610), Vector2(260, 32)],
+		[Vector2(300, 1110), Vector2(260, 32)],
+		[Vector2(420, 1390), Vector2(260, 32)],
+
+		[Vector2(210, 1720), Vector2(250, 30)],
+		[Vector2(250, 1980), Vector2(260, 30)],
+		[Vector2(650, 2570), Vector2(260, 30)],
+		[Vector2(650, 2920), Vector2(260, 30)],
+
+		[Vector2(450, 3240), Vector2(300, 30)],
+		[Vector2(360, 4090), Vector2(220, 30)],
+		[Vector2(260, 4380), Vector2(330, 30)],
+
+		[Vector2(690, 4720), Vector2(260, 28)],
+		[Vector2(620, 5620), Vector2(220, 28)],
+		[Vector2(560, 5900), Vector2(360, 28)],
+
+		[Vector2(320, 6240), Vector2(280, 28)],
+		[Vector2(340, 7150), Vector2(220, 28)],
+		[Vector2(585, 7460), Vector2(390, 28)],
 	]
 
-	for i in platforms.size():
-		var entry: Array = platforms[i]
+	for i in safe_platforms.size():
+		var entry: Array = safe_platforms[i]
 		var platform_position: Vector2 = entry[0] as Vector2
 		var platform_size: Vector2 = entry[1] as Vector2
-		_add_rect("Platform%d" % i, platform_position, platform_size, _platform_color(platform_position.y), true, 1, true)
+		_add_rect("SafePlatform%d" % i, platform_position, platform_size, _platform_color(platform_position.y), true, 1, true)
+
+	var diagonal_surfaces: Array[Array] = [
+		[Vector2(650, 850), -32.0],
+		[Vector2(310, 2300), 32.0],
+		[Vector2(650, 3820), -32.0],
+		[Vector2(310, 5350), 32.0],
+		[Vector2(650, 6870), -32.0],
+	]
+	for i in diagonal_surfaces.size():
+		var entry: Array = diagonal_surfaces[i]
+		_add_diagonal_surface(
+			"DiagonalSurface%d" % i,
+			entry[0] as Vector2,
+			float(entry[1])
+		)
 
 	var grip_posts: Array[Array] = [
 		[Vector2(110, 1180), Vector2(40, 230)], [Vector2(850, 1660), Vector2(40, 260)], [Vector2(120, 3030), Vector2(40, 280)],
@@ -126,6 +163,7 @@ func _build_player() -> void:
 	player.name = "Player"
 	player.collision_layer = 2
 	player.collision_mask = 1
+	player.floor_max_angle = deg_to_rad(20.0)
 	add_child(player)
 
 	player_shape = CollisionShape2D.new()
@@ -207,6 +245,11 @@ func _update_falling(delta: float) -> void:
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
+	var diagonal_collision := _find_diagonal_slide_collision()
+	if diagonal_collision:
+		_handle_diagonal_slide(incoming_velocity, diagonal_collision)
+		return
+	active_diagonal_surface = null
 
 	var is_on_floor: bool = player.is_on_floor()
 	if is_on_floor:
@@ -245,6 +288,7 @@ func _update_falling(delta: float) -> void:
 
 
 func _update_grabbed(delta: float) -> void:
+	active_diagonal_surface = null
 	speed_edge_effect.set_speed_ratio(0.0)
 	player.velocity = Vector2.ZERO
 
@@ -337,6 +381,39 @@ func _impact_speed_against_normal(incoming_velocity: Vector2, surface_normal: Ve
 	return maxf(0.0, -incoming_velocity.dot(surface_normal))
 
 
+func _find_diagonal_slide_collision() -> KinematicCollision2D:
+	for collision_index in player.get_slide_collision_count():
+		var collision := player.get_slide_collision(collision_index)
+		var collider := collision.get_collider()
+		if collider is Node and (collider as Node).is_in_group(DIAGONAL_SLIDE_GROUP):
+			return collision
+	return null
+
+
+func _handle_diagonal_slide(
+	incoming_velocity: Vector2,
+	collision: KinematicCollision2D
+) -> void:
+	var collider := collision.get_collider()
+	if collider == active_diagonal_surface:
+		return
+
+	active_diagonal_surface = collider
+	auto_grab_until_msec = 0
+	var surface_normal := collision.get_normal()
+	var impact_speed: float = DIAGONAL_SLIDE_RESPONSE.impact_speed(
+		incoming_velocity,
+		surface_normal
+	)
+	if _apply_impact_damage("경사면", impact_speed):
+		return
+	player.velocity = DIAGONAL_SLIDE_RESPONSE.slide_velocity(
+		incoming_velocity,
+		surface_normal,
+		DIAGONAL_SLIDE_SPEED_RETENTION
+	)
+
+
 func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
 	var damage: int = IMPACT_DAMAGE.damage_for_speed(impact_speed)
 	if damage <= 0:
@@ -380,6 +457,7 @@ func _reset_player() -> void:
 	player.velocity = Vector2(0.0, 80.0)
 	player_body.rotation = 0.0
 	speed_edge_effect.set_speed_ratio(0.0)
+	active_diagonal_surface = null
 
 
 func _update_hud() -> void:
@@ -427,6 +505,39 @@ func _add_rect(node_name: String, center: Vector2, size: Vector2, color: Color, 
 		Vector2(size.x * 0.5, -size.y * 0.5),
 		Vector2(size.x * 0.5, size.y * 0.5),
 		Vector2(-size.x * 0.5, size.y * 0.5),
+	])
+	body.add_child(visual)
+
+
+func _add_diagonal_surface(
+	node_name: String,
+	center: Vector2,
+	angle_degrees: float
+) -> void:
+	var body := StaticBody2D.new()
+	body.name = node_name
+	body.position = center
+	body.rotation = deg_to_rad(angle_degrees)
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.z_index = 1
+	body.add_to_group(DIAGONAL_SLIDE_GROUP)
+	add_child(body)
+
+	var collision_shape := CollisionShape2D.new()
+	var rect_shape := RectangleShape2D.new()
+	rect_shape.size = DIAGONAL_SURFACE_SIZE
+	collision_shape.shape = rect_shape
+	body.add_child(collision_shape)
+
+	var half_size := DIAGONAL_SURFACE_SIZE * 0.5
+	var visual := Polygon2D.new()
+	visual.color = DIAGONAL_SURFACE_COLOR
+	visual.polygon = PackedVector2Array([
+		Vector2(-half_size.x, -half_size.y),
+		Vector2(half_size.x, -half_size.y),
+		Vector2(half_size.x, half_size.y),
+		Vector2(-half_size.x, half_size.y),
 	])
 	body.add_child(visual)
 
