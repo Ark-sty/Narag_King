@@ -33,7 +33,7 @@ const GRAB_MODE_EDGE := 1
 const GRAB_MODE_AUTO_EDGE := 2
 const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
-const DIAGONAL_SURFACE_SIZE := Vector2(460.0, 28.0)
+const DIAGONAL_SURFACE_SIZE := Vector2(320.0, 28.0)
 const DIAGONAL_SURFACE_COLOR := Color("#b64343")
 
 @onready var speed_edge_effect: SpeedEdgeEffect = $SpeedEdgeEffect
@@ -117,11 +117,11 @@ func _build_world() -> void:
 		_add_rect("SafePlatform%d" % i, platform_position, platform_size, _platform_color(platform_position.y), true, 1, true)
 
 	var diagonal_surfaces: Array[Array] = [
-		[Vector2(650, 660), 32.0], [Vector2(320, 1080), -32.0],
-		[Vector2(330, 2050), 32.0], [Vector2(680, 2520), -32.0],
-		[Vector2(700, 3570), -32.0], [Vector2(270, 4020), 32.0],
-		[Vector2(650, 5070), -32.0], [Vector2(310, 5520), 32.0],
-		[Vector2(300, 6590), 32.0], [Vector2(680, 7040), -32.0],
+		[Vector2(650, 850), -32.0],
+		[Vector2(310, 2300), 32.0],
+		[Vector2(650, 3820), -32.0],
+		[Vector2(310, 5350), 32.0],
+		[Vector2(650, 6870), -32.0],
 	]
 	for i in diagonal_surfaces.size():
 		var entry: Array = diagonal_surfaces[i]
