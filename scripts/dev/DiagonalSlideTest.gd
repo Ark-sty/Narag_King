@@ -22,7 +22,7 @@ const SCENARIOS := [
 	},
 	{
 		"name": "중속 · 좌하향 경사",
-		"initial_speed": 1250.0,
+		"initial_speed": 1400.0,
 		"slope_degrees": -32.0,
 		"spawn_x": 610.0,
 	},
@@ -46,6 +46,7 @@ var _scenario_time := 0.0
 var _reset_timer := -1.0
 var _has_impacted := false
 var completed_pass_count := 0
+var completed_results: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -97,6 +98,11 @@ func _resolve_slope_contact(incoming_velocity: Vector2, surface_normal: Vector2)
 		SLIDE_SPEED_RETENTION
 	)
 	var damage: int = IMPACT_DAMAGE.damage_for_speed(normal_speed)
+	completed_results.append({
+		"scenario_index": _scenario_index,
+		"normal_speed": normal_speed,
+		"damage": damage,
+	})
 	_body.velocity = outgoing_velocity
 	_body_visual.color = Color.html("#ff7a68")
 
