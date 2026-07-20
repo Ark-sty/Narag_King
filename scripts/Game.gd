@@ -6,8 +6,10 @@ const WORLD_WIDTH := 960.0
 const WORLD_HEIGHT := 7800.0
 const SECTION_COUNT := 5
 const SECTION_HEIGHT := WORLD_HEIGHT / SECTION_COUNT
+const BACKGROUND_HORIZONTAL_PADDING := 240.0
 const PLAYER_START := Vector2(480.0, 120.0)
 const PLAYER_RADIUS := 18.0
+const CAMERA_ZOOM := 0.75
 const GRAVITY := 1150.0
 const AIR_CONTROL := 620.0
 const AIR_MOVE_SPEED := 430.0
@@ -79,7 +81,14 @@ func _build_world() -> void:
 
 	for section in SECTION_COUNT:
 		var top: float = float(section) * SECTION_HEIGHT
-		_add_rect("Section%dBackground" % (section + 1), Vector2(WORLD_WIDTH * 0.5, top + SECTION_HEIGHT * 0.5), Vector2(WORLD_WIDTH, SECTION_HEIGHT), section_colors[section], false, -20)
+		_add_rect(
+			"Section%dBackground" % (section + 1),
+			Vector2(WORLD_WIDTH * 0.5, top + SECTION_HEIGHT * 0.5),
+			Vector2(WORLD_WIDTH + BACKGROUND_HORIZONTAL_PADDING * 2.0, SECTION_HEIGHT),
+			section_colors[section],
+			false,
+			-20
+		)
 		_add_label_marker(section, top)
 
 	_add_rect("LeftWall", Vector2(-16.0, WORLD_HEIGHT * 0.5), Vector2(32.0, WORLD_HEIGHT), Color.html("#56616b"), true, 0, false)
@@ -135,6 +144,7 @@ func _build_player() -> void:
 	camera = Camera2D.new()
 	camera.name = "Camera2D"
 	camera.enabled = true
+	camera.zoom = Vector2.ONE * CAMERA_ZOOM
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = 6.0
 	camera.limit_left = 0
