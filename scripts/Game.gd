@@ -103,11 +103,27 @@ func _build_world() -> void:
 	_add_rect("FinishFloor", Vector2(WORLD_WIDTH * 0.5, WORLD_HEIGHT + 18.0), Vector2(WORLD_WIDTH, 36.0), Color.html("#8fbf6a"), true, 0, false)
 
 	var safe_platforms: Array[Array] = [
-		[Vector2(370, 360), Vector2(380, 32)], [Vector2(420, 1390), Vector2(260, 32)],
-		[Vector2(210, 1720), Vector2(250, 30)], [Vector2(650, 2920), Vector2(260, 30)],
-		[Vector2(450, 3240), Vector2(300, 30)], [Vector2(260, 4380), Vector2(330, 30)],
-		[Vector2(690, 4720), Vector2(260, 28)], [Vector2(560, 5900), Vector2(360, 28)],
-		[Vector2(320, 6240), Vector2(280, 28)], [Vector2(585, 7460), Vector2(390, 28)],
+		[Vector2(370, 360), Vector2(380, 32)],
+		[Vector2(710, 610), Vector2(260, 32)],
+		[Vector2(300, 1110), Vector2(260, 32)],
+		[Vector2(420, 1390), Vector2(260, 32)],
+
+		[Vector2(210, 1720), Vector2(250, 30)],
+		[Vector2(250, 1980), Vector2(260, 30)],
+		[Vector2(650, 2570), Vector2(260, 30)],
+		[Vector2(650, 2920), Vector2(260, 30)],
+
+		[Vector2(450, 3240), Vector2(300, 30)],
+		[Vector2(360, 4090), Vector2(220, 30)],
+		[Vector2(260, 4380), Vector2(330, 30)],
+
+		[Vector2(690, 4720), Vector2(260, 28)],
+		[Vector2(620, 5620), Vector2(220, 28)],
+		[Vector2(560, 5900), Vector2(360, 28)],
+
+		[Vector2(320, 6240), Vector2(280, 28)],
+		[Vector2(340, 7150), Vector2(220, 28)],
+		[Vector2(585, 7460), Vector2(390, 28)],
 	]
 
 	for i in safe_platforms.size():
