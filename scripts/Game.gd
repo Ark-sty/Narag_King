@@ -25,9 +25,13 @@ const GRAB_SIDE_DISTANCE := 46.0
 const GRAB_EDGE_DISTANCE := 54.0
 const GRAB_EDGE_VERTICAL_DISTANCE := 16.0
 const GRAB_INPUT_BUFFER_MSEC := 120
+const GROUND_EDGE_GRAB_DISTANCE := 108.0
+const GROUND_EDGE_GRAB_VERTICAL_DISTANCE := 52.0
+const GROUND_EDGE_GRAB_ARM_MSEC := 180
 const GRAB_SNAP_GAP := 1.5
 const GRAB_MODE_SIDE := 0
 const GRAB_MODE_EDGE := 1
+const GRAB_MODE_GROUND_EDGE := 2
 const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 const DIAGONAL_SURFACE_SIZE := Vector2(320.0, 28.0)
@@ -55,6 +59,8 @@ var state: String = "falling"
 var last_damage_msec: int = -1000
 var status_message_until_msec: int = 0
 var grab_input_buffered_until_msec: int = -1
+var ground_edge_grab_rect_index: int = -1
+var ground_edge_grab_armed_until_msec: int = -1
 var active_diagonal_surface: Object
 
 
@@ -235,6 +241,7 @@ func _build_hud() -> void:
 
 func _update_falling(delta: float) -> void:
 	var was_on_floor: bool = player.is_on_floor()
+	_update_ground_edge_grab_arm(was_on_floor)
 	var axis_x: float = Input.get_axis("move_left", "move_right")
 	var target_speed: float = AIR_MOVE_SPEED
 	var acceleration: float = AIR_CONTROL
@@ -249,6 +256,8 @@ func _update_falling(delta: float) -> void:
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
+	if not player.is_on_floor() and _try_armed_ground_edge_grab():
+		return
 	if incoming_velocity.y > 0.0 and _try_slope_grab_handle(maxf(0.0, incoming_velocity.y)):
 		return
 	var diagonal_collision := _find_diagonal_slide_collision()
@@ -331,11 +340,64 @@ func _try_side_grab(grab_mode: int) -> bool:
 	return false
 
 
+func _update_ground_edge_grab_arm(was_on_floor: bool) -> void:
+	if not Input.is_action_pressed("grab"):
+		ground_edge_grab_rect_index = -1
+		ground_edge_grab_armed_until_msec = -1
+		return
+	if not was_on_floor:
+		return
+
+	var supporting_rect_index := _find_supporting_grabbable_rect_index()
+	if supporting_rect_index < 0:
+		ground_edge_grab_rect_index = -1
+		ground_edge_grab_armed_until_msec = -1
+		return
+	ground_edge_grab_rect_index = supporting_rect_index
+	ground_edge_grab_armed_until_msec = Time.get_ticks_msec() + GROUND_EDGE_GRAB_ARM_MSEC
+
+
+func _find_supporting_grabbable_rect_index() -> int:
+	var player_position := player.global_position
+	var player_feet_y := player_position.y + PLAYER_RADIUS
+	for rect_index in grabbable_rects.size():
+		var rect: Rect2 = grabbable_rects[rect_index]
+		if player_position.x < rect.position.x - PLAYER_RADIUS or player_position.x > rect.end.x + PLAYER_RADIUS:
+			continue
+		if absf(player_feet_y - rect.position.y) <= 6.0:
+			return rect_index
+	return -1
+
+
+func _try_armed_ground_edge_grab() -> bool:
+	if not Input.is_action_pressed("grab"):
+		return false
+	if ground_edge_grab_rect_index < 0:
+		return false
+	if Time.get_ticks_msec() > ground_edge_grab_armed_until_msec:
+		ground_edge_grab_rect_index = -1
+		return false
+
+	var rect: Rect2 = grabbable_rects[ground_edge_grab_rect_index]
+	var player_position := player.global_position
+	var left_side_x := rect.position.x
+	var right_side_x := rect.end.x
+	if _can_grab_side(rect, left_side_x, -1.0, player_position, GRAB_MODE_GROUND_EDGE):
+		_grab_terrain(rect, left_side_x, -1.0, GRAB_MODE_GROUND_EDGE)
+		return true
+	if _can_grab_side(rect, right_side_x, 1.0, player_position, GRAB_MODE_GROUND_EDGE):
+		_grab_terrain(rect, right_side_x, 1.0, GRAB_MODE_GROUND_EDGE)
+		return true
+	return false
+
+
 func _can_grab_side(rect: Rect2, side_x: float, side_direction: float, player_position: Vector2, grab_mode: int) -> bool:
 	var horizontal_gap: float = absf(player_position.x - side_x) - PLAYER_RADIUS
 	var side_distance: float = GRAB_SIDE_DISTANCE
 	if grab_mode == GRAB_MODE_EDGE:
 		side_distance = GRAB_EDGE_DISTANCE
+	elif grab_mode == GRAB_MODE_GROUND_EDGE:
+		side_distance = GROUND_EDGE_GRAB_DISTANCE
 	if horizontal_gap < -PLAYER_RADIUS * 0.35 or horizontal_gap > side_distance:
 		return false
 
@@ -349,7 +411,10 @@ func _can_grab_side(rect: Rect2, side_x: float, side_direction: float, player_po
 
 	var player_feet_y: float = player_position.y + PLAYER_RADIUS
 	var is_beside_face: bool = player_position.y >= rect.position.y + minf(PLAYER_RADIUS * 0.35, rect.size.y * 0.5) and player_position.y <= rect.end.y + PLAYER_RADIUS * 0.35
-	var is_near_top_edge: bool = grab_mode != GRAB_MODE_SIDE and absf(player_feet_y - rect.position.y) <= GRAB_EDGE_VERTICAL_DISTANCE
+	var edge_vertical_distance := GRAB_EDGE_VERTICAL_DISTANCE
+	if grab_mode == GRAB_MODE_GROUND_EDGE:
+		edge_vertical_distance = GROUND_EDGE_GRAB_VERTICAL_DISTANCE
+	var is_near_top_edge: bool = grab_mode != GRAB_MODE_SIDE and absf(player_feet_y - rect.position.y) <= edge_vertical_distance
 	if grab_mode != GRAB_MODE_SIDE:
 		return is_near_top_edge
 	return is_beside_face
@@ -389,6 +454,9 @@ func _enter_grab(snap_position: Vector2, grab_speed: float) -> void:
 	player.velocity = Vector2.ZERO
 	player.global_position = snap_position
 	active_diagonal_surface = null
+	grab_input_buffered_until_msec = -1
+	ground_edge_grab_rect_index = -1
+	ground_edge_grab_armed_until_msec = -1
 	charge = 0.0
 	is_charging_launch = false
 
@@ -476,6 +544,8 @@ func _reset_player() -> void:
 	last_damage_msec = -1000
 	status_message_until_msec = 0
 	grab_input_buffered_until_msec = -1
+	ground_edge_grab_rect_index = -1
+	ground_edge_grab_armed_until_msec = -1
 	player.global_position = PLAYER_START
 	player.velocity = Vector2(0.0, 80.0)
 	player_body.rotation = 0.0
