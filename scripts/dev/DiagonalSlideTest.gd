@@ -10,7 +10,6 @@ const BODY_RADIUS := 15.0
 const SLOPE_SIZE := Vector2(560.0, 26.0)
 const SLOPE_CENTER := Vector2(480.0, 330.0)
 const SLIDE_SPEED_RETENTION := 0.78
-const MIN_CONTACT_DAMAGE := 8
 const SCENARIO_DURATION := 3.4
 const RESET_DELAY := 0.65
 
@@ -97,17 +96,14 @@ func _resolve_slope_contact(incoming_velocity: Vector2, surface_normal: Vector2)
 		surface_normal,
 		SLIDE_SPEED_RETENTION
 	)
-	var damage := maxi(
-		MIN_CONTACT_DAMAGE,
-		IMPACT_DAMAGE.damage_for_speed(normal_speed)
-	)
+	var damage: int = IMPACT_DAMAGE.damage_for_speed(normal_speed)
 	_body.velocity = outgoing_velocity
 	_body_visual.color = Color.html("#ff7a68")
 
 	var normal_residual := absf(outgoing_velocity.dot(surface_normal.normalized()))
 	var slowed := outgoing_velocity.length() < incoming_velocity.length()
 	var redirected := absf(outgoing_velocity.x) > 20.0
-	var passed := slowed and redirected and normal_residual < 0.1 and damage > 0
+	var passed := slowed and redirected and normal_residual < 0.1
 	if passed:
 		completed_pass_count += 1
 	var scenario: Dictionary = SCENARIOS[_scenario_index]
@@ -285,7 +281,7 @@ func _build_hud() -> void:
 	var intent := Label.new()
 	intent.position = Vector2(32.0, 56.0)
 	intent.size = Vector2(420.0, 42.0)
-	intent.text = "안전한 착지점이 아니라, 피해를 감수하고\n속도를 줄이며 경로가 꺾이는 완충 루트"
+	intent.text = "안전한 착지점이 아니라, 고속이면 피해를 받고\n속도를 줄이며 경로가 꺾이는 완충 루트"
 	intent.modulate = Color.html("#c7d2dd")
 	canvas.add_child(intent)
 
