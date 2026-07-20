@@ -1,5 +1,7 @@
 extends Node2D
 
+const IMPACT_DAMAGE = preload("res://scripts/ImpactDamage.gd")
+
 const WORLD_WIDTH := 960.0
 const WORLD_HEIGHT := 7800.0
 const SECTION_COUNT := 5
@@ -13,8 +15,6 @@ const GROUND_MOVE_SPEED := 520.0
 const GROUND_ACCELERATION := 2200.0
 const GROUND_BRAKE := 4200.0
 const MAX_FALL_SPEED := 1850.0
-const SAFE_FALL_DISTANCE := 620.0
-const DAMAGE_STEP_DISTANCE := 110.0
 const LAUNCH_MIN_SPEED := 130.0
 const LAUNCH_MAX_SPEED := 490.0
 const MAX_CHARGE_TIME := 1.15
@@ -41,7 +41,6 @@ var grabbable_rects: Array[Rect2] = []
 var hp: int = 100
 var charge: float = 0.0
 var is_charging_launch: bool = false
-var fall_start_y: float = PLAYER_START.y
 var state: String = "falling"
 var last_damage_msec: int = -1000
 var status_message_until_msec: int = 0
@@ -192,17 +191,16 @@ func _update_falling(delta: float) -> void:
 	player.velocity.x = move_toward(player.velocity.x, axis_x * target_speed, acceleration * delta)
 	player.velocity.y = minf(player.velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
 
-	if player.velocity.y > 0.0 and not was_on_floor:
-		fall_start_y = minf(fall_start_y, player.global_position.y)
-
+	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
 
 	var is_on_floor: bool = player.is_on_floor()
 	if is_on_floor:
 		auto_grab_until_msec = 0
 		if not was_on_floor:
-			_apply_fall_damage("착지")
-		fall_start_y = player.global_position.y
+			var landing_speed := _impact_speed_against_normal(incoming_velocity, player.get_floor_normal())
+			if _apply_impact_damage("착지", landing_speed):
+				return
 		if Input.is_action_pressed("grab"):
 			_try_side_grab(GRAB_MODE_EDGE, true)
 		return
@@ -225,7 +223,9 @@ func _update_falling(delta: float) -> void:
 				best_collision = collision
 
 		if best_collision.get_normal().y > -0.65:
-			_apply_fall_damage("충돌")
+			var collision_speed := _impact_speed_against_normal(incoming_velocity, best_collision.get_normal())
+			if _apply_impact_damage("충돌", collision_speed):
+				return
 			player.velocity = player.velocity.bounce(best_collision.get_normal()) * 0.28
 			player.velocity.y = minf(player.velocity.y, 120.0)
 
@@ -248,7 +248,6 @@ func _update_grabbed(delta: float) -> void:
 		var speed: float = lerpf(LAUNCH_MIN_SPEED, LAUNCH_MAX_SPEED, charge)
 		player.velocity = aim * speed
 		state = "falling"
-		fall_start_y = player.global_position.y
 		charge = 0.0
 		is_charging_launch = false
 
@@ -302,7 +301,9 @@ func _can_grab_side(rect: Rect2, side_x: float, side_direction: float, player_po
 
 
 func _grab_terrain(rect: Rect2, side_x: float, side_direction: float, grab_mode: int) -> void:
-	_apply_fall_damage("잡기")
+	var grab_speed := maxf(0.0, player.velocity.y)
+	if _apply_impact_damage("잡기", grab_speed):
+		return
 	state = "grabbed"
 	player.velocity = Vector2.ZERO
 	auto_grab_until_msec = 0
@@ -317,23 +318,28 @@ func _grab_terrain(rect: Rect2, side_x: float, side_direction: float, grab_mode:
 	is_charging_launch = false
 
 
-func _apply_fall_damage(reason: String) -> void:
+func _impact_speed_against_normal(incoming_velocity: Vector2, surface_normal: Vector2) -> float:
+	return maxf(0.0, -incoming_velocity.dot(surface_normal))
+
+
+func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
+	var damage: int = IMPACT_DAMAGE.damage_for_speed(impact_speed)
+	if damage <= 0:
+		return false
+
 	var now: int = Time.get_ticks_msec()
 	if now - last_damage_msec < 450:
-		return
+		return false
 
-	var fall_distance: float = maxf(0.0, player.global_position.y - fall_start_y)
-	if fall_distance <= SAFE_FALL_DISTANCE:
-		return
-
-	var damage: int = int(ceil((fall_distance - SAFE_FALL_DISTANCE) / DAMAGE_STEP_DISTANCE)) * 8
 	hp = maxi(0, hp - damage)
 	last_damage_msec = now
 	status_message_until_msec = now + 900
-	hud_state.text = "%s 데미지 -%d" % [reason, damage]
+	hud_state.text = "%s 충격 %d · 피해 -%d" % [reason, int(round(impact_speed)), damage]
 
 	if hp <= 0:
 		_reset_player()
+		return true
+	return false
 
 
 func _get_aim_direction() -> Vector2:
@@ -351,7 +357,6 @@ func _reset_player() -> void:
 	charge = 0.0
 	is_charging_launch = false
 	state = "falling"
-	fall_start_y = PLAYER_START.y
 	last_damage_msec = -1000
 	status_message_until_msec = 0
 	auto_grab_until_msec = 0
