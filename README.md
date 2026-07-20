@@ -20,7 +20,8 @@ Godot 4 프로젝트용 2D 낙하 액션 프로토타입입니다.
 
 - 시작 씬: `scenes/Main.tscn`
 - 게임 로직/맵 생성: `scripts/Game.gd`
+- 충돌 속도 피해 계산: `scripts/ImpactDamage.gd`
 - 입력 설정 저장/복원: `scripts/InputBindings.gd`
 - 키 설정 UI: `scripts/ControlsMenu.gd`
 
-맵은 `Game.gd`의 `_build_world()`에서 5개 세로 구간으로 생성됩니다. 낙하 데미지는 `SAFE_FALL_DISTANCE`, `DAMAGE_STEP_DISTANCE`, 잡기 거리는 `GRAB_SIDE_DISTANCE`, `GRAB_EDGE_DISTANCE`, `AUTO_GRAB_EDGE_DISTANCE`, 중력/속도/충전값은 파일 상단 상수로 조정할 수 있습니다.
+맵은 `Game.gd`의 `_build_world()`에서 5개 세로 구간으로 생성됩니다. 충격 피해는 `ImpactDamage.gd`의 `SAFE_IMPACT_SPEED`, `LETHAL_IMPACT_SPEED`, 피해 곡선 상수로 조정합니다. 잡기 거리 `GRAB_SIDE_DISTANCE`, `GRAB_EDGE_DISTANCE`, `AUTO_GRAB_EDGE_DISTANCE`와 중력/속도/충전값은 `Game.gd` 파일 상단 상수로 조정할 수 있습니다.
