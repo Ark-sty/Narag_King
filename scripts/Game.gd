@@ -36,9 +36,8 @@ const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 const DIAGONAL_SURFACE_SIZE := Vector2(320.0, 28.0)
 const DIAGONAL_SURFACE_COLOR := Color("#b64343")
-const SLOPE_GRAB_HANDLE_VISUAL_SIZE := Vector2(14.0, 72.0)
+const SLOPE_GRAB_HANDLE_WIDTH := 14.0
 const SLOPE_GRAB_HANDLE_COLOR := Color("#f0c75e")
-const SLOPE_GRAB_HANDLE_OFFSET := 30.0
 
 @onready var speed_edge_effect: SpeedEdgeEffect = $SpeedEdgeEffect
 
@@ -142,11 +141,11 @@ func _build_world() -> void:
 		_add_rect("SafePlatform%d" % i, platform_position, platform_size, _platform_color(platform_position.y), true, 1, true)
 
 	var diagonal_routes: Array[Array] = [
-		[Vector2(650, 850), -32.0, Vector2(110, 140)],
-		[Vector2(310, 2300), 32.0, Vector2(110, 140)],
-		[Vector2(650, 3820), -32.0, Vector2(92, 116)],
-		[Vector2(310, 5350), 32.0, Vector2(92, 116)],
-		[Vector2(650, 6870), -32.0, Vector2(92, 116)],
+		[Vector2(650, 850), -32.0, 100.0, 84.0, 38.0],
+		[Vector2(310, 2300), 32.0, 30.0, 84.0, 38.0],
+		[Vector2(650, 3820), -32.0, 30.0, 72.0, 30.0],
+		[Vector2(310, 5350), 32.0, 30.0, 72.0, 30.0],
+		[Vector2(650, 6870), -32.0, 30.0, 72.0, 30.0],
 	]
 	for i in diagonal_routes.size():
 		var entry: Array = diagonal_routes[i]
@@ -154,7 +153,9 @@ func _build_world() -> void:
 			"DiagonalSurface%d" % i,
 			entry[0] as Vector2,
 			float(entry[1]),
-			entry[2] as Vector2
+			float(entry[2]),
+			float(entry[3]),
+			float(entry[4])
 		)
 
 	var grip_posts: Array[Array] = [
@@ -438,13 +439,33 @@ func _try_slope_grab_handle(grab_speed: float) -> bool:
 		return false
 
 	for handle in slope_grab_handles:
-		var grab_rect: Rect2 = handle[0] as Rect2
-		if not grab_rect.has_point(player.global_position):
+		var segment_start: Vector2 = handle[0] as Vector2
+		var segment_end: Vector2 = handle[1] as Vector2
+		var grab_reach := float(handle[2])
+		var closest_point := _closest_point_on_segment(
+			player.global_position,
+			segment_start,
+			segment_end
+		)
+		if player.global_position.distance_to(closest_point) > grab_reach:
 			continue
 		_consume_grab_input()
-		_enter_grab(handle[1] as Vector2, grab_speed)
+		_enter_grab(player.global_position, grab_speed)
 		return true
 	return false
+
+
+func _closest_point_on_segment(point: Vector2, segment_start: Vector2, segment_end: Vector2) -> Vector2:
+	var segment := segment_end - segment_start
+	var segment_length_squared := segment.length_squared()
+	if segment_length_squared <= 0.0001:
+		return segment_start
+	var progress := clampf(
+		(point - segment_start).dot(segment) / segment_length_squared,
+		0.0,
+		1.0
+	)
+	return segment_start + segment * progress
 
 
 func _enter_grab(snap_position: Vector2, grab_speed: float) -> void:
@@ -606,28 +627,27 @@ func _add_diagonal_route(
 	node_name: String,
 	center: Vector2,
 	angle_degrees: float,
-	grab_zone_size: Vector2
+	handle_offset: float,
+	handle_length: float,
+	grab_reach: float
 ) -> void:
 	_add_diagonal_surface(node_name, center, angle_degrees)
 
 	var angle_radians := deg_to_rad(angle_degrees)
 	var tangent := Vector2.RIGHT.rotated(angle_radians)
 	var downhill_direction := tangent if tangent.y > 0.0 else -tangent
-	var handle_surface_position := center + downhill_direction * SLOPE_GRAB_HANDLE_OFFSET
-	var handle_center := handle_surface_position + Vector2.UP * SLOPE_GRAB_HANDLE_VISUAL_SIZE.y * 0.5
-	var approach_side := -signf(downhill_direction.x)
-	var snap_position := Vector2(
-		handle_center.x + approach_side * (PLAYER_RADIUS + SLOPE_GRAB_HANDLE_VISUAL_SIZE.x * 0.5 + GRAB_SNAP_GAP),
-		handle_center.y
-	)
+	var handle_bottom := center + downhill_direction * handle_offset
+	var handle_top := handle_bottom + Vector2.UP * handle_length
+	var handle_center := (handle_top + handle_bottom) * 0.5
 	slope_grab_handles.append([
-		Rect2(handle_center - grab_zone_size * 0.5, grab_zone_size),
-		snap_position,
+		handle_top,
+		handle_bottom,
+		grab_reach,
 	])
 	_add_rect(
 		"%sGrabHandle" % node_name,
 		handle_center,
-		SLOPE_GRAB_HANDLE_VISUAL_SIZE,
+		Vector2(SLOPE_GRAB_HANDLE_WIDTH, handle_length),
 		SLOPE_GRAB_HANDLE_COLOR,
 		false,
 		2
