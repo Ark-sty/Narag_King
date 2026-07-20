@@ -25,3 +25,7 @@ Godot 4 프로젝트용 2D 낙하 액션 프로토타입입니다.
 - 키 설정 UI: `scripts/ControlsMenu.gd`
 
 맵은 `Game.gd`의 `_build_world()`에서 5개 세로 구간으로 생성됩니다. 충격 피해는 `ImpactDamage.gd`의 `SAFE_IMPACT_SPEED`, `LETHAL_IMPACT_SPEED`, 피해 곡선 상수로 조정합니다. 잡기 거리 `GRAB_SIDE_DISTANCE`, `GRAB_EDGE_DISTANCE`, `AUTO_GRAB_EDGE_DISTANCE`와 중력/속도/충전값은 `Game.gd` 파일 상단 상수로 조정할 수 있습니다.
+
+## 개발 테스트 씬
+
+- `scenes/dev/DiagonalSlideTest.tscn`: 피해를 감수하고 감속하는 대각선 완충면의 자동 시연 씬입니다. 저속·중속·고속 낙하가 자동 반복되며 `Space`로 다음 조건, `R`로 현재 조건을 다시 실행할 수 있습니다.
