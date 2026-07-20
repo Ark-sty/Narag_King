@@ -29,6 +29,8 @@ const GRAB_MODE_SIDE := 0
 const GRAB_MODE_EDGE := 1
 const GRAB_MODE_AUTO_EDGE := 2
 
+@onready var speed_edge_effect: SpeedEdgeEffect = $SpeedEdgeEffect
+
 var player: CharacterBody2D
 var player_shape: CollisionShape2D
 var player_body: Polygon2D
@@ -145,6 +147,7 @@ func _build_player() -> void:
 func _build_hud() -> void:
 	var canvas: CanvasLayer = CanvasLayer.new()
 	canvas.name = "HUD"
+	canvas.layer = 20
 	add_child(canvas)
 
 	var panel: ColorRect = ColorRect.new()
@@ -190,6 +193,7 @@ func _update_falling(delta: float) -> void:
 			acceleration = GROUND_BRAKE
 	player.velocity.x = move_toward(player.velocity.x, axis_x * target_speed, acceleration * delta)
 	player.velocity.y = minf(player.velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
+	speed_edge_effect.set_speed_ratio(IMPACT_DAMAGE.get_warning_ratio(maxf(0.0, player.velocity.y)))
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
@@ -231,6 +235,7 @@ func _update_falling(delta: float) -> void:
 
 
 func _update_grabbed(delta: float) -> void:
+	speed_edge_effect.set_speed_ratio(0.0)
 	player.velocity = Vector2.ZERO
 
 	var aim: Vector2 = _get_aim_direction()
@@ -335,6 +340,7 @@ func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
 	last_damage_msec = now
 	status_message_until_msec = now + 900
 	hud_state.text = "%s 충격 %d · 피해 -%d" % [reason, int(round(impact_speed)), damage]
+	speed_edge_effect.flash_damage(IMPACT_DAMAGE.get_damage_ratio(impact_speed))
 
 	if hp <= 0:
 		_reset_player()
@@ -363,6 +369,7 @@ func _reset_player() -> void:
 	player.global_position = PLAYER_START
 	player.velocity = Vector2(0.0, 80.0)
 	player_body.rotation = 0.0
+	speed_edge_effect.set_speed_ratio(0.0)
 
 
 func _update_hud() -> void:
