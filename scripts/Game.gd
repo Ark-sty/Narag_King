@@ -88,6 +88,7 @@ func _update_falling(delta: float) -> void:
 	grab_system.call("update_ground_edge_arm", was_on_floor)
 
 	var axis_x: float = Input.get_axis("move_left", "move_right")
+	player.call("aim_visual_at", Vector2(axis_x, 0.0))
 	var target_speed: float = AIR_MOVE_SPEED
 	var acceleration: float = AIR_CONTROL
 	if was_on_floor:
@@ -163,9 +164,12 @@ func _update_grabbed(delta: float) -> void:
 		is_charging_launch = true
 		charge = minf(charge + delta / MAX_CHARGE_TIME, 1.0)
 
+	player.call("set_charge_visual", charge)
+
 	if is_charging_launch and Input.is_action_just_released("charge_launch"):
 		var speed: float = lerpf(LAUNCH_MIN_SPEED, LAUNCH_MAX_SPEED, charge)
 		player.velocity = aim * speed
+		player.call("play_launch_burst")
 		state = "falling"
 		charge = 0.0
 		is_charging_launch = false
