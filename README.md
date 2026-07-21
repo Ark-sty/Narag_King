@@ -34,7 +34,7 @@ Godot 4 프로젝트용 2D 낙하 액션 프로토타입입니다.
 
 맵 배치는 `scenes/level/Level01.tscn`에서 조정합니다. `SafePlatform*`, `GripPost*`, `DiagonalSurface*`, `GrabPoint*` 노드를 Godot 에디터에서 직접 옮기고 Inspector에서 값을 바꿀 수 있습니다.
 
-`SafePlatform*`, `GripPost*`는 `grab_sides`를 `Both`, `Left Only`, `Right Only` 중 하나로 설정해 잡을 수 있는 면을 고릅니다. 여기서 Left/Right는 오브젝트 자체의 왼쪽/오른쪽 면입니다. 잡을 수 있는 면은 노란색 세로 하이라이트로 표시됩니다. `GrabPoint*`는 충돌 없이 통과되는 작은 원형 손잡이이며, `radius`와 `grab_reach`로 크기와 잡기 허용 범위를 조정합니다. 좌우 맵 끝은 시각 표시만 있고 충돌하지 않으므로 플레이어가 벽 마찰로 멈추지 않습니다.
+`SafePlatform*`, `GripPost*`는 `grab_sides`를 `Both`, `Left Only`, `Right Only` 중 하나로 설정해 잡을 수 있는 면을 고릅니다. 여기서 Left/Right는 오브젝트 자체의 왼쪽/오른쪽 면입니다. 잡을 수 있는 면은 노란색 세로 하이라이트로 표시됩니다. `GrabPoint*`는 충돌 없이 통과되는 작은 원형 손잡이이며, `radius`와 `grab_reach`로 크기와 잡기 허용 범위를 조정합니다. 좌우 맵 끝(`LeftWall`/`RightWall`)은 충돌체가 있어 플레이어를 막지만 마찰이 0으로 설정되어 있어 벽에 붙잡혀 멈추지 않습니다.
 
 충격 피해는 `ImpactDamage.gd`의 `SAFE_IMPACT_SPEED`, `LETHAL_IMPACT_SPEED`, 피해 곡선 상수로 조정합니다. 잡기 거리와 발판 이탈 보정은 `GrabSystem.gd`, 입력 버퍼는 `Game.gd`의 `GRAB_INPUT_BUFFER_MSEC`에서 조정합니다.
 

@@ -23,6 +23,7 @@ const GRAB_INPUT_BUFFER_MSEC := 120
 const GRAB_MODE_SIDE := 0
 const GRAB_MODE_EDGE := 1
 const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
+const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 
 @onready var level: Node = $Level01
@@ -189,6 +190,11 @@ func _handle_regular_collision(incoming_velocity: Vector2) -> void:
 	var collision_speed: float = _impact_speed_against_normal(incoming_velocity, best_collision.get_normal())
 	if _apply_impact_damage("충돌", collision_speed):
 		return
+
+	var collider: Object = best_collision.get_collider()
+	if collider is Node and (collider as Node).is_in_group(NO_FRICTION_WALL_GROUP):
+		return
+
 	player.velocity = player.velocity.bounce(best_collision.get_normal()) * 0.28
 	player.velocity.y = minf(player.velocity.y, 120.0)
 
