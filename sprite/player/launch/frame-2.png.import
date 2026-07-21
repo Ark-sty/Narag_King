@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nh7754r286wo"
-path="res://.godot/imported/cloaked-poet.png-b5959eab64e2be10fe53bf07317dad67.ctex"
+uid="uid://b5xxf4njb7dep"
+path="res://.godot/imported/frame-2.png-b0257613a165555f71f86de1e8f24df2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprite/cloaked-poet.png"
-dest_files=["res://.godot/imported/cloaked-poet.png-b5959eab64e2be10fe53bf07317dad67.ctex"]
+source_file="res://sprite/player/launch/frame-2.png"
+dest_files=["res://.godot/imported/frame-2.png-b0257613a165555f71f86de1e8f24df2.ctex"]
 
 [params]
 
