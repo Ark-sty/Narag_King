@@ -93,7 +93,9 @@ func _update_falling(delta: float) -> void:
 
 	player.velocity.x = move_toward(player.velocity.x, axis_x * target_speed, acceleration * delta)
 	player.velocity.y = minf(player.velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
-	speed_edge_effect.call("set_speed_ratio", IMPACT_DAMAGE.get_warning_ratio(maxf(0.0, player.velocity.y)))
+	var fall_ratio: float = IMPACT_DAMAGE.get_warning_ratio(maxf(0.0, player.velocity.y))
+	speed_edge_effect.call("set_speed_ratio", fall_ratio)
+	player.call("set_fall_stretch", fall_ratio)
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
@@ -120,6 +122,7 @@ func _update_falling(delta: float) -> void:
 	if is_on_floor:
 		if not was_on_floor:
 			var landing_speed: float = _impact_speed_against_normal(incoming_velocity, player.get_floor_normal())
+			player.call("trigger_landing_squash", landing_speed / IMPACT_DAMAGE.WARNING_IMPACT_SPEED)
 			if _apply_impact_damage("착지", landing_speed):
 				return
 		grab_result = grab_system.call("try_side_grab", GRAB_MODE_EDGE)
@@ -139,6 +142,7 @@ func _update_falling(delta: float) -> void:
 func _update_grabbed(delta: float) -> void:
 	active_diagonal_surface = null
 	speed_edge_effect.call("set_speed_ratio", 0.0)
+	player.call("set_fall_stretch", 0.0)
 	player.velocity = Vector2.ZERO
 
 	var aim: Vector2 = _get_aim_direction()

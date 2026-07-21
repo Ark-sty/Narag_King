@@ -1,9 +1,19 @@
 class_name PlayerCharacter
 extends CharacterBody2D
 
+const STRETCH_RATE := 3.6
+const STRETCH_MAX_SCALE := 0.28
+const LANDING_SQUASH_SCALE := 0.34
+const LANDING_SQUASH_DURATION := 0.22
+
 var body_visual: Polygon2D
 var camera: Camera2D
 var radius: float = 18.0
+
+var _target_fall_ratio: float = 0.0
+var _displayed_fall_ratio: float = 0.0
+var _squash_scale: Vector2 = Vector2.ONE
+var _squash_tween: Tween
 
 
 func setup(player_radius: float, camera_zoom: float, world_width: float, world_height: float) -> void:
@@ -17,14 +27,48 @@ func setup(player_radius: float, camera_zoom: float, world_width: float, world_h
 	_build_camera(camera_zoom, world_width, world_height)
 
 
+func _process(delta: float) -> void:
+	_displayed_fall_ratio = move_toward(_displayed_fall_ratio, _target_fall_ratio, STRETCH_RATE * delta)
+	_apply_visual_scale()
+
+
 func aim_visual_at(direction: Vector2) -> void:
 	if body_visual != null:
 		body_visual.rotation = direction.angle() + PI * 0.5
 
 
+func set_fall_stretch(ratio: float) -> void:
+	_target_fall_ratio = clampf(ratio, 0.0, 1.0)
+
+
+func trigger_landing_squash(strength: float) -> void:
+	if body_visual == null:
+		return
+	if _squash_tween != null and _squash_tween.is_valid():
+		_squash_tween.kill()
+
+	var pulse: float = clampf(strength, 0.0, 1.0)
+	_squash_scale = Vector2(1.0 + LANDING_SQUASH_SCALE * pulse, 1.0 - LANDING_SQUASH_SCALE * pulse)
+	_squash_tween = create_tween()
+	_squash_tween.tween_property(self, "_squash_scale", Vector2.ONE, LANDING_SQUASH_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
 func reset_visual() -> void:
+	if _squash_tween != null and _squash_tween.is_valid():
+		_squash_tween.kill()
+	_target_fall_ratio = 0.0
+	_displayed_fall_ratio = 0.0
+	_squash_scale = Vector2.ONE
 	if body_visual != null:
 		body_visual.rotation = 0.0
+		body_visual.scale = Vector2.ONE
+
+
+func _apply_visual_scale() -> void:
+	if body_visual == null:
+		return
+	var stretch: Vector2 = Vector2(1.0 - STRETCH_MAX_SCALE * _displayed_fall_ratio * 0.5, 1.0 + STRETCH_MAX_SCALE * _displayed_fall_ratio)
+	body_visual.scale = _squash_scale * stretch
 
 
 func _build_collision() -> void:
