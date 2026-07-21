@@ -8,27 +8,40 @@ const HAND_TEXTURE = preload("res://sprite/망자의_손길.png")
 @export var horizontal_padding: float = 320.0
 @export var start_y: float = 0.0
 @export var descend_speed: float = 18.0
+@export var catch_up_when_above_screen: bool = true
+@export var catch_up_speed: float = 120.0
+@export var offscreen_top_margin: float = 160.0
 @export var damage_per_tick: int = 6
 @export var damage_tick_msec: int = 700
 @export var sprite_scale: float = 0.45
 @export var cover_extra_top: float = 10000.0
 @export var cover_color: Color = Color(0.0, 0.0, 0.0, 0.94)
+@export var cover_z_index: int = -30
+@export var hands_z_index: int = 60
 
 var front_y: float = 0.0
 var next_damage_msec: int = 0
+var camera_top_y: float = 0.0
+var has_camera_top: bool = false
 var cover_visual: Polygon2D
 var hand_container: Node2D
 
 
 func _ready() -> void:
-	z_index = -10
+	z_index = 0
 	front_y = start_y
 	_build_visuals()
 	_update_visuals()
 
 
 func _process(delta: float) -> void:
-	front_y = minf(front_y + descend_speed * delta, world_height)
+	var next_front_y: float = front_y + descend_speed * delta
+	if catch_up_when_above_screen and has_camera_top:
+		var minimum_visible_front_y: float = camera_top_y - offscreen_top_margin
+		if next_front_y < minimum_visible_front_y:
+			next_front_y = minf(minimum_visible_front_y, next_front_y + catch_up_speed * delta)
+
+	front_y = minf(next_front_y, world_height)
 	_update_visuals()
 
 
@@ -36,6 +49,11 @@ func reset() -> void:
 	front_y = start_y
 	next_damage_msec = 0
 	_update_visuals()
+
+
+func set_camera_top(camera_top_world_y: float) -> void:
+	camera_top_y = camera_top_world_y
+	has_camera_top = true
 
 
 func configure(config_world_width: float, config_world_height: float) -> void:
@@ -67,12 +85,14 @@ func _build_visuals() -> void:
 	cover_visual = Polygon2D.new()
 	cover_visual.name = "DeathCover"
 	cover_visual.color = cover_color
-	cover_visual.z_index = 0
+	cover_visual.z_as_relative = false
+	cover_visual.z_index = cover_z_index
 	add_child(cover_visual)
 
 	hand_container = Node2D.new()
 	hand_container.name = "Hands"
-	hand_container.z_index = 1
+	hand_container.z_as_relative = false
+	hand_container.z_index = hands_z_index
 	add_child(hand_container)
 
 	var texture_width: float = float(HAND_TEXTURE.get_width()) * sprite_scale

@@ -25,6 +25,7 @@ const GRAB_MODE_EDGE := 1
 const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
+const GRAB_DAMAGE_MULTIPLIER := 0.5
 
 @onready var level: Node = $Level01
 @onready var death_hands_hazard: Node = $DeathHandsHazard
@@ -60,6 +61,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_update_falling(delta)
 
+	_update_death_hands_camera_tracking()
 	_apply_death_hands_damage()
 	_update_hud()
 
@@ -173,7 +175,7 @@ func _enter_grab(result: Variant) -> void:
 	var result_dictionary: Dictionary = result as Dictionary
 	var catch_speed: float = float(result_dictionary["impact_speed"])
 	player.call("add_camera_trauma", IMPACT_DAMAGE.get_damage_ratio(catch_speed))
-	if _apply_impact_damage("잡기", catch_speed):
+	if _apply_impact_damage("잡기", catch_speed, GRAB_DAMAGE_MULTIPLIER):
 		return
 	state = "grabbed"
 	player.velocity = Vector2.ZERO
@@ -238,10 +240,11 @@ func _handle_diagonal_slide(incoming_velocity: Vector2, collision: KinematicColl
 	player.velocity = DIAGONAL_SLIDE_RESPONSE.slide_velocity(incoming_velocity, surface_normal, DIAGONAL_SLIDE_SPEED_RETENTION)
 
 
-func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
+func _apply_impact_damage(reason: String, impact_speed: float, damage_multiplier: float = 1.0) -> bool:
 	var damage: int = IMPACT_DAMAGE.damage_for_speed(impact_speed)
 	if damage <= 0:
 		return false
+	damage = maxi(1, int(round(float(damage) * damage_multiplier)))
 
 	var now: int = Time.get_ticks_msec()
 	if now - last_damage_msec < 450:
@@ -270,6 +273,16 @@ func _apply_death_hands_damage() -> void:
 
 	if hp <= 0:
 		_reset_player()
+
+
+func _update_death_hands_camera_tracking() -> void:
+	var camera: Camera2D = player.get_node("Camera2D") as Camera2D
+	if camera == null:
+		return
+
+	var viewport_height: float = get_viewport_rect().size.y
+	var camera_top_y: float = player.global_position.y - viewport_height * camera.zoom.y * 0.5
+	death_hands_hazard.call("set_camera_top", camera_top_y)
 
 
 func _get_aim_direction() -> Vector2:

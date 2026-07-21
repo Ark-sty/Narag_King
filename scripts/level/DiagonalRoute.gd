@@ -16,6 +16,10 @@ const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 	set(value):
 		surface_color = value
 		_rebuild()
+@export var handle_enabled: bool = true:
+	set(value):
+		handle_enabled = value
+		_rebuild()
 @export var handle_offset: float = 30.0:
 	set(value):
 		handle_offset = value
@@ -43,6 +47,9 @@ func _ready() -> void:
 
 
 func get_grab_handle() -> Array:
+	if not handle_enabled:
+		return []
+
 	var angle_radians: float = deg_to_rad(angle_degrees)
 	var tangent: Vector2 = Vector2.RIGHT.rotated(angle_radians)
 	var downhill_direction: Vector2 = tangent
@@ -73,6 +80,9 @@ func _rebuild() -> void:
 	visual.polygon = _rect_polygon(surface_size)
 
 	var handle_visual: Polygon2D = _get_or_create_handle_visual()
+	handle_visual.visible = handle_enabled
+	if not handle_enabled:
+		return
 	handle_visual.color = handle_color
 	handle_visual.polygon = _handle_polygon()
 

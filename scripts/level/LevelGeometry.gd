@@ -67,7 +67,9 @@ func get_slope_grab_handles() -> Array[Array]:
 	var handles: Array[Array] = []
 	var routes: Array[Node] = _find_nodes_with_method(self, &"get_grab_handle")
 	for route: Node in routes:
-		handles.append(route.get_grab_handle())
+		var handle: Array = route.get_grab_handle()
+		if not handle.is_empty():
+			handles.append(handle)
 	return handles
 
 

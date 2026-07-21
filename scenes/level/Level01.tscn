@@ -1,212 +1,519 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://c3bylvm05a1oy"]
 
-[ext_resource type="Script" path="res://scripts/level/LevelGeometry.gd" id="1_level"]
-[ext_resource type="Script" path="res://scripts/level/PlatformBlock.gd" id="2_block"]
-[ext_resource type="Script" path="res://scripts/level/DiagonalRoute.gd" id="3_diagonal"]
-[ext_resource type="Script" path="res://scripts/level/GrabPoint.gd" id="4_point"]
+[ext_resource type="Script" uid="uid://bqm2i5luhwaly" path="res://scripts/level/LevelGeometry.gd" id="1_level"]
+[ext_resource type="Script" uid="uid://bv8bpg7lafwvs" path="res://scripts/level/PlatformBlock.gd" id="2_block"]
+[ext_resource type="Script" uid="uid://de2vws2crfwsh" path="res://scripts/level/DiagonalRoute.gd" id="3_diagonal"]
+[ext_resource type="Script" uid="uid://2yba04w5km7q" path="res://scripts/level/GrabPoint.gd" id="4_point"]
 
-[node name="Level01" type="Node2D"]
+[node name="Level01" type="Node2D" unique_id=1529245048]
 script = ExtResource("1_level")
+section_colors = Array[Color]([Color(0.11372549, 0.15294118, 0.1882353, 1), Color(0.14901961, 0.19607843, 0.1764706, 1), Color(0.1882353, 0.17254902, 0.23137255, 1), Color(0.20392157, 0.17254902, 0.15686275, 1), Color(0.1254902, 0.16862746, 0.23921569, 1)])
 
-[node name="SafePlatform0" type="StaticBody2D" parent="."]
-position = Vector2(370, 360)
+[node name="SafePlatform0" type="StaticBody2D" parent="." unique_id=231217680]
+position = Vector2(484, 294)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(380, 32)
 color = Color(0.603922, 0.65098, 0.698039, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform1" type="StaticBody2D" parent="."]
-position = Vector2(710, 610)
+[node name="SafePlatform1" type="StaticBody2D" parent="." unique_id=2037075016]
+position = Vector2(132, 840)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(260, 32)
 color = Color(0.603922, 0.65098, 0.698039, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform2" type="StaticBody2D" parent="."]
+[node name="SafePlatform2" type="StaticBody2D" parent="." unique_id=867660452]
 position = Vector2(300, 1110)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(260, 32)
 color = Color(0.603922, 0.65098, 0.698039, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform3" type="StaticBody2D" parent="."]
+[node name="SafePlatform3" type="StaticBody2D" parent="." unique_id=423133930]
 position = Vector2(420, 1390)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(260, 32)
 color = Color(0.603922, 0.65098, 0.698039, 1)
+grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform4" type="StaticBody2D" parent="."]
-position = Vector2(210, 1720)
+[node name="SafePlatform4" type="StaticBody2D" parent="." unique_id=1990975872]
+position = Vector2(229, 1923)
+collision_mask = 0
 script = ExtResource("2_block")
-size = Vector2(250, 30)
+size = Vector2(500, 30)
 color = Color(0.580392, 0.658824, 0.52549, 1)
+grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform5" type="StaticBody2D" parent="."]
-position = Vector2(250, 1980)
+[node name="SafePlatform6" type="StaticBody2D" parent="." unique_id=1195240456]
+position = Vector2(396, 2406)
+collision_mask = 0
 script = ExtResource("2_block")
-size = Vector2(260, 30)
+size = Vector2(400, 30)
 color = Color(0.580392, 0.658824, 0.52549, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform6" type="StaticBody2D" parent="."]
-position = Vector2(650, 2570)
-script = ExtResource("2_block")
-size = Vector2(260, 30)
-color = Color(0.580392, 0.658824, 0.52549, 1)
-
-[node name="SafePlatform7" type="StaticBody2D" parent="."]
+[node name="SafePlatform7" type="StaticBody2D" parent="." unique_id=1173363331]
 position = Vector2(650, 2920)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(260, 30)
 color = Color(0.580392, 0.658824, 0.52549, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform8" type="StaticBody2D" parent="."]
-position = Vector2(450, 3240)
+[node name="SafePlatform8" type="StaticBody2D" parent="." unique_id=1073018757]
+position = Vector2(266, 3094)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(300, 30)
 color = Color(0.627451, 0.596078, 0.717647, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform9" type="StaticBody2D" parent="."]
-position = Vector2(360, 4090)
+[node name="SafePlatform9" type="StaticBody2D" parent="." unique_id=714093330]
+position = Vector2(243, 3885)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(220, 30)
 color = Color(0.627451, 0.596078, 0.717647, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform10" type="StaticBody2D" parent="."]
-position = Vector2(260, 4380)
+[node name="SafePlatform10" type="StaticBody2D" parent="." unique_id=1993208267]
+position = Vector2(174, 4214)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(330, 30)
 color = Color(0.627451, 0.596078, 0.717647, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform11" type="StaticBody2D" parent="."]
-position = Vector2(690, 4720)
+[node name="SafePlatform11" type="StaticBody2D" parent="." unique_id=1962019809]
+position = Vector2(455, 4739)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(260, 28)
 color = Color(0.690196, 0.568627, 0.501961, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform12" type="StaticBody2D" parent="."]
-position = Vector2(620, 5620)
+[node name="SafePlatform12" type="StaticBody2D" parent="." unique_id=1934455909]
+position = Vector2(745, 5491)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(450, 28)
+color = Color(0.690196, 0.568627, 0.501961, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="SafePlatform13" type="StaticBody2D" parent="." unique_id=726026543]
+position = Vector2(191, 5494)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(450, 28)
+color = Color(0.690196, 0.568627, 0.501961, 1)
+grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="SafePlatform14" type="StaticBody2D" parent="." unique_id=272698520]
+position = Vector2(468, 6464)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(350, 28)
+color = Color(0.498039, 0.635294, 0.741176, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="SafePlatform15" type="StaticBody2D" parent="." unique_id=1049580560]
+position = Vector2(240, 7082)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(220, 28)
-color = Color(0.690196, 0.568627, 0.501961, 1)
-
-[node name="SafePlatform13" type="StaticBody2D" parent="."]
-position = Vector2(560, 5900)
-script = ExtResource("2_block")
-size = Vector2(360, 28)
-color = Color(0.690196, 0.568627, 0.501961, 1)
-
-[node name="SafePlatform14" type="StaticBody2D" parent="."]
-position = Vector2(320, 6240)
-script = ExtResource("2_block")
-size = Vector2(280, 28)
 color = Color(0.498039, 0.635294, 0.741176, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="SafePlatform15" type="StaticBody2D" parent="."]
-position = Vector2(340, 7150)
-script = ExtResource("2_block")
-size = Vector2(220, 28)
-color = Color(0.498039, 0.635294, 0.741176, 1)
-
-[node name="SafePlatform16" type="StaticBody2D" parent="."]
-position = Vector2(585, 7460)
+[node name="SafePlatform16" type="StaticBody2D" parent="." unique_id=1602440926]
+position = Vector2(788, 7365)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(390, 28)
 color = Color(0.498039, 0.635294, 0.741176, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="DiagonalSurface0" type="StaticBody2D" parent="."]
-position = Vector2(650, 850)
+[node name="DiagonalSurface0" type="StaticBody2D" parent="." unique_id=1738284007]
+position = Vector2(778, 488)
+rotation = 0.27489227
+collision_mask = 0
 script = ExtResource("3_diagonal")
-angle_degrees = -32.0
+angle_degrees = -60.0
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
 handle_offset = 100.0
 handle_length = 84.0
 handle_reach = 38.0
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="DiagonalSurface1" type="StaticBody2D" parent="."]
-position = Vector2(310, 2300)
+[node name="DiagonalSurface1" type="StaticBody2D" parent="." unique_id=1062013775]
+position = Vector2(157.99988, 1644.9999)
+rotation = 0.72424793
+collision_mask = 0
 script = ExtResource("3_diagonal")
-angle_degrees = 32.0
-handle_offset = 30.0
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
 handle_length = 84.0
 handle_reach = 38.0
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="DiagonalSurface2" type="StaticBody2D" parent="."]
-position = Vector2(650, 3820)
+[node name="DiagonalSurface2" type="StaticBody2D" parent="." unique_id=1627222054]
+position = Vector2(740, 3434)
+collision_mask = 0
 script = ExtResource("3_diagonal")
 angle_degrees = -32.0
-handle_offset = 30.0
-handle_length = 72.0
-handle_reach = 30.0
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="DiagonalSurface3" type="StaticBody2D" parent="."]
-position = Vector2(310, 5350)
-script = ExtResource("3_diagonal")
-angle_degrees = 32.0
-handle_offset = 30.0
-handle_length = 72.0
-handle_reach = 30.0
-
-[node name="DiagonalSurface4" type="StaticBody2D" parent="."]
-position = Vector2(650, 6870)
+[node name="DiagonalSurface4" type="StaticBody2D" parent="." unique_id=22353029]
+position = Vector2(247.99997, 6668)
+rotation = 1.5263226
+collision_mask = 0
 script = ExtResource("3_diagonal")
 angle_degrees = -32.0
-handle_offset = 30.0
-handle_length = 72.0
-handle_reach = 30.0
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GripPost0" type="StaticBody2D" parent="."]
-position = Vector2(110, 1180)
+[node name="GripPost0" type="StaticBody2D" parent="." unique_id=1283999044]
+position = Vector2(486, 547)
+collision_mask = 0
 script = ExtResource("2_block")
-size = Vector2(40, 230)
+size = Vector2(40, 300)
 color = Color(0.470588, 0.564706, 0.611765, 1)
-grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GripPost1" type="StaticBody2D" parent="."]
-position = Vector2(850, 1660)
+[node name="GripPost1" type="StaticBody2D" parent="." unique_id=2144525123]
+position = Vector2(877, 2108)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(40, 260)
 color = Color(0.470588, 0.564706, 0.611765, 1)
 grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GripPost2" type="StaticBody2D" parent="."]
-position = Vector2(120, 3030)
+[node name="GripPost2" type="StaticBody2D" parent="." unique_id=1918593943]
+position = Vector2(87, 2628)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(40, 280)
 color = Color(0.470588, 0.564706, 0.611765, 1)
 grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GripPost3" type="StaticBody2D" parent="."]
-position = Vector2(850, 4210)
+[node name="GripPost3" type="StaticBody2D" parent="." unique_id=1591180346]
+position = Vector2(699, 3906)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(40, 260)
 color = Color(0.470588, 0.564706, 0.611765, 1)
 grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GripPost4" type="StaticBody2D" parent="."]
-position = Vector2(110, 5360)
+[node name="GripPost4" type="StaticBody2D" parent="." unique_id=1192747270]
+position = Vector2(334, 5723)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(40, 300)
 color = Color(0.470588, 0.564706, 0.611765, 1)
 grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GripPost5" type="StaticBody2D" parent="."]
-position = Vector2(840, 6980)
+[node name="GripPost5" type="StaticBody2D" parent="." unique_id=1146009959]
+position = Vector2(851, 6583)
+collision_mask = 0
 script = ExtResource("2_block")
 size = Vector2(40, 320)
 color = Color(0.470588, 0.564706, 0.611765, 1)
-grab_sides = 1
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GrabPoint0" type="Node2D" parent="."]
-position = Vector2(485, 1525)
+[node name="GrabPoint0" type="Node2D" parent="." unique_id=1931214991]
+position = Vector2(695, 934)
 script = ExtResource("4_point")
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GrabPoint1" type="Node2D" parent="."]
-position = Vector2(470, 2760)
+[node name="GrabPoint0" type="Node2D" parent="GrabPoint0" unique_id=1448185412]
+position = Vector2(22, 1376)
+script = ExtResource("4_point")
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint1" type="Node2D" parent="." unique_id=1055009809]
+position = Vector2(340, 2607)
 script = ExtResource("4_point")
 grab_reach = 48.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GrabPoint2" type="Node2D" parent="."]
-position = Vector2(480, 4550)
+[node name="GrabPoint2" type="Node2D" parent="." unique_id=2097620187]
+position = Vector2(464, 4070)
 script = ExtResource("4_point")
 grab_reach = 48.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
 
-[node name="GrabPoint3" type="Node2D" parent="."]
-position = Vector2(500, 6100)
+[node name="GrabPoint3" type="Node2D" parent="." unique_id=1760194758]
+position = Vector2(461, 5855)
 script = ExtResource("4_point")
 grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint4" type="Node2D" parent="." unique_id=250503126]
+position = Vector2(167, 449)
+script = ExtResource("4_point")
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint0" type="Node2D" parent="GrabPoint4" unique_id=672033839]
+position = Vector2(498, 1502)
+script = ExtResource("4_point")
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint5" type="Node2D" parent="." unique_id=277425213]
+position = Vector2(251, 1802)
+script = ExtResource("4_point")
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GripPost6" type="StaticBody2D" parent="." unique_id=1552169048]
+position = Vector2(543, 1810)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(40, 260)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GripPost7" type="StaticBody2D" parent="." unique_id=1214678574]
+position = Vector2(407, 1713)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(40, 260)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="DiagonalSurface5" type="StaticBody2D" parent="." unique_id=652217443]
+position = Vector2(480.99997, 2816.9998)
+rotation = 1.2258356
+collision_mask = 0
+script = ExtResource("3_diagonal")
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_length = 84.0
+handle_reach = 38.0
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint6" type="Node2D" parent="." unique_id=1581118752]
+position = Vector2(654, 2884)
+script = ExtResource("4_point")
+grab_reach = 48.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="DiagonalSurface6" type="StaticBody2D" parent="." unique_id=495736317]
+position = Vector2(111.00003, 3288)
+rotation = 0.64767116
+collision_mask = 0
+script = ExtResource("3_diagonal")
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_length = 84.0
+handle_reach = 38.0
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="DiagonalSurface7" type="StaticBody2D" parent="." unique_id=1948172251]
+position = Vector2(411.99994, 3292.9995)
+rotation = 1.3520365
+collision_mask = 0
+script = ExtResource("3_diagonal")
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_length = 84.0
+handle_reach = 38.0
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GripPost8" type="StaticBody2D" parent="." unique_id=160014521]
+position = Vector2(474, 3653)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(40, 260)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint7" type="Node2D" parent="." unique_id=695453346]
+position = Vector2(338, 3849)
+script = ExtResource("4_point")
+grab_reach = 48.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="DiagonalSurface8" type="StaticBody2D" parent="." unique_id=668960573]
+position = Vector2(759, 4286)
+rotation = 1.6361256
+collision_mask = 0
+script = ExtResource("3_diagonal")
+angle_degrees = -32.0
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="SafePlatform17" type="StaticBody2D" parent="." unique_id=2046316046]
+position = Vector2(805, 4524)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(330, 30)
+color = Color(0.627451, 0.596078, 0.717647, 1)
+grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint8" type="Node2D" parent="." unique_id=1197742836]
+position = Vector2(295, 4472)
+script = ExtResource("4_point")
+grab_reach = 48.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint9" type="Node2D" parent="." unique_id=2053208055]
+position = Vector2(676, 4954)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint10" type="Node2D" parent="." unique_id=1094594520]
+position = Vector2(441, 5133)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint11" type="Node2D" parent="." unique_id=6419068]
+position = Vector2(210, 4947)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint12" type="Node2D" parent="." unique_id=247568576]
+position = Vector2(210, 5344)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint13" type="Node2D" parent="." unique_id=709349931]
+position = Vector2(838, 5299)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GripPost9" type="StaticBody2D" parent="." unique_id=1688625357]
+position = Vector2(602, 5724)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(40, 300)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 1
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint14" type="Node2D" parent="." unique_id=736746101]
+position = Vector2(184, 5641)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint15" type="Node2D" parent="." unique_id=2000293717]
+position = Vector2(771, 5637)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint16" type="Node2D" parent="." unique_id=1380344600]
+position = Vector2(790, 5966)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint17" type="Node2D" parent="." unique_id=1852239554]
+position = Vector2(169, 5972)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="SafePlatform18" type="StaticBody2D" parent="." unique_id=1405922896]
+position = Vector2(471, 6182)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(450, 28)
+color = Color(0.690196, 0.568627, 0.501961, 1)
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint18" type="Node2D" parent="." unique_id=767883108]
+position = Vector2(744, 6431)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint19" type="Node2D" parent="." unique_id=2138230588]
+position = Vector2(436, 6939)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GripPost10" type="StaticBody2D" parent="." unique_id=891906698]
+position = Vector2(517, 7050)
+collision_mask = 0
+script = ExtResource("2_block")
+size = Vector2(40, 320)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 2
+grab_highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint20" type="Node2D" parent="." unique_id=1797836031]
+position = Vector2(71, 7368)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="DiagonalSurface9" type="StaticBody2D" parent="." unique_id=816120734]
+position = Vector2(85.000015, 7614)
+rotation = 1.5263226
+collision_mask = 0
+script = ExtResource("3_diagonal")
+angle_degrees = -32.0
+surface_color = Color(0.7137255, 0.2627451, 0.2627451, 1)
+handle_enabled = false
+handle_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="GrabPoint21" type="Node2D" parent="." unique_id=41346722]
+position = Vector2(515, 7630)
+script = ExtResource("4_point")
+grab_reach = 46.0
+color = Color(0.41568628, 0.84313726, 0.9411765, 1)
+highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)

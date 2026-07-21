@@ -1,9 +1,9 @@
 class_name ImpactDamage
 extends RefCounted
 
-const WARNING_IMPACT_SPEED := 850.0
-const SAFE_IMPACT_SPEED := 1200.0
-const LETHAL_IMPACT_SPEED := 1850.0
+const WARNING_IMPACT_SPEED := 750.0
+const SAFE_IMPACT_SPEED := 900.0
+const LETHAL_IMPACT_SPEED := 1550.0
 const MAX_DAMAGE := 100
 const DAMAGE_QUANTUM := 8
 const DAMAGE_CURVE_EXPONENT := 1.4
