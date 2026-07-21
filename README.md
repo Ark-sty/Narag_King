@@ -27,6 +27,7 @@ Godot 4 프로젝트용 2D 낙하 액션 프로토타입입니다.
 - 플레이어 생성/표시: `scripts/player/PlayerCharacter.gd`
 - 잡기 판정/입력 버퍼/모서리 보정: `scripts/player/GrabSystem.gd`
 - HUD: `scripts/ui/GameHud.gd`
+- 망자의 손길 추격 위험 영역: `scripts/DeathHandsHazard.gd`
 - 충돌 속도 피해 계산: `scripts/ImpactDamage.gd`
 - 대각선 경사면 감속 계산: `scripts/DiagonalSlideResponse.gd`
 - 입력 설정 저장/복원: `scripts/InputBindings.gd`
@@ -37,6 +38,8 @@ Godot 4 프로젝트용 2D 낙하 액션 프로토타입입니다.
 `SafePlatform*`, `GripPost*`는 `grab_sides`를 `Both`, `Left Only`, `Right Only` 중 하나로 설정해 잡을 수 있는 면을 고릅니다. 여기서 Left/Right는 오브젝트 자체의 왼쪽/오른쪽 면입니다. 잡을 수 있는 면은 노란색 세로 하이라이트로 표시됩니다. `GrabPoint*`는 충돌 없이 통과되는 작은 원형 손잡이이며, `radius`와 `grab_reach`로 크기와 잡기 허용 범위를 조정합니다. 좌우 맵 끝(`LeftWall`/`RightWall`)은 충돌체가 있어 플레이어를 막지만 마찰이 0으로 설정되어 있어 벽에 붙잡혀 멈추지 않습니다.
 
 충격 피해는 `ImpactDamage.gd`의 `SAFE_IMPACT_SPEED`, `LETHAL_IMPACT_SPEED`, 피해 곡선 상수로 조정합니다. 잡기 거리와 발판 이탈 보정은 `GrabSystem.gd`, 입력 버퍼는 `Game.gd`의 `GRAB_INPUT_BUFFER_MSEC`에서 조정합니다.
+
+망자의 손길은 `Main.tscn`의 `DeathHandsHazard` 노드에서 설정합니다. `descend_speed`는 내려오는 속도, `damage_per_tick`과 `damage_tick_msec`는 틱 피해량과 간격입니다. 손길 경계보다 위에 있으면 피해를 받으며, 손길 위쪽은 검은 영역으로 덮입니다.
 
 ## 개발 테스트 씬
 

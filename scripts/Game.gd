@@ -27,6 +27,7 @@ const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 
 @onready var level: Node = $Level01
+@onready var death_hands_hazard: Node = $DeathHandsHazard
 @onready var speed_edge_effect: CanvasLayer = $SpeedEdgeEffect
 
 var player: CharacterBody2D
@@ -41,6 +42,7 @@ var active_diagonal_surface: Object = null
 
 
 func _ready() -> void:
+	death_hands_hazard.call("configure", float(level.get("world_width")), float(level.get("world_height")))
 	_build_player()
 	_build_hud()
 	_build_grab_system()
@@ -58,6 +60,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_update_falling(delta)
 
+	_apply_death_hands_damage()
 	_update_hud()
 
 
@@ -255,6 +258,20 @@ func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
 	return false
 
 
+func _apply_death_hands_damage() -> void:
+	var player_top_position: Vector2 = player.global_position + Vector2.UP * PLAYER_RADIUS
+	var damage: int = int(death_hands_hazard.call("get_damage_if_player_in_danger", player_top_position))
+	if damage <= 0:
+		return
+
+	hp = maxi(0, hp - damage)
+	hud.call("show_status", "망자의 손길 · 피해 -%d" % damage)
+	speed_edge_effect.call("flash_damage", 0.45)
+
+	if hp <= 0:
+		_reset_player()
+
+
 func _get_aim_direction() -> Vector2:
 	var direction: Vector2 = Vector2(
 		Input.get_axis("move_left", "move_right"),
@@ -276,6 +293,7 @@ func _reset_player() -> void:
 	player.velocity = Vector2(0.0, 80.0)
 	player.call("reset_visual")
 	speed_edge_effect.call("set_speed_ratio", 0.0)
+	death_hands_hazard.call("reset")
 	active_diagonal_surface = null
 	hud.call("clear_status")
 
