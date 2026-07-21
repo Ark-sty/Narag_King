@@ -2,12 +2,10 @@ extends Node2D
 
 const IMPACT_DAMAGE = preload("res://scripts/ImpactDamage.gd")
 const DIAGONAL_SLIDE_RESPONSE = preload("res://scripts/DiagonalSlideResponse.gd")
+const PLAYER_CHARACTER = preload("res://scripts/player/PlayerCharacter.gd")
+const GAME_HUD = preload("res://scripts/ui/GameHud.gd")
+const GRAB_SYSTEM = preload("res://scripts/player/GrabSystem.gd")
 
-const WORLD_WIDTH := 960.0
-const WORLD_HEIGHT := 7800.0
-const SECTION_COUNT := 5
-const SECTION_HEIGHT := WORLD_HEIGHT / SECTION_COUNT
-const BACKGROUND_HORIZONTAL_PADDING := 240.0
 const PLAYER_START := Vector2(480.0, 120.0)
 const PLAYER_RADIUS := 18.0
 const CAMERA_ZOOM := 0.75
@@ -21,52 +19,30 @@ const MAX_FALL_SPEED := 1850.0
 const LAUNCH_MIN_SPEED := 130.0
 const LAUNCH_MAX_SPEED := 490.0
 const MAX_CHARGE_TIME := 1.15
-const GRAB_SIDE_DISTANCE := 46.0
-const GRAB_EDGE_DISTANCE := 54.0
-const GRAB_EDGE_VERTICAL_DISTANCE := 16.0
 const GRAB_INPUT_BUFFER_MSEC := 120
-const GROUND_EDGE_GRAB_DISTANCE := 108.0
-const GROUND_EDGE_GRAB_VERTICAL_DISTANCE := 52.0
-const GROUND_EDGE_GRAB_ARM_MSEC := 180
-const GRAB_SNAP_GAP := 1.5
 const GRAB_MODE_SIDE := 0
 const GRAB_MODE_EDGE := 1
-const GRAB_MODE_GROUND_EDGE := 2
 const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
-const DIAGONAL_SURFACE_SIZE := Vector2(320.0, 28.0)
-const DIAGONAL_SURFACE_COLOR := Color("#b64343")
-const SLOPE_GRAB_HANDLE_WIDTH := 14.0
-const SLOPE_GRAB_HANDLE_COLOR := Color("#f0c75e")
 
-@onready var speed_edge_effect: SpeedEdgeEffect = $SpeedEdgeEffect
+@onready var level: Node = $Level01
+@onready var speed_edge_effect: CanvasLayer = $SpeedEdgeEffect
 
 var player: CharacterBody2D
-var player_shape: CollisionShape2D
-var player_body: Polygon2D
-var camera: Camera2D
-var hud_hp: ProgressBar
-var hud_charge: ProgressBar
-var hud_section: Label
-var hud_state: Label
-var grabbable_rects: Array[Rect2] = []
-var slope_grab_handles: Array[Array] = []
+var hud: CanvasLayer
+var grab_system: RefCounted
 var hp: int = 100
 var charge: float = 0.0
 var is_charging_launch: bool = false
 var state: String = "falling"
 var last_damage_msec: int = -1000
-var status_message_until_msec: int = 0
-var grab_input_buffered_until_msec: int = -1
-var ground_edge_grab_rect_index: int = -1
-var ground_edge_grab_armed_until_msec: int = -1
-var active_diagonal_surface: Object
+var active_diagonal_surface: Object = null
 
 
 func _ready() -> void:
-	_build_world()
 	_build_player()
 	_build_hud()
+	_build_grab_system()
 	_reset_player()
 
 
@@ -74,7 +50,7 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("restart"):
 		_reset_player()
 	if state != "grabbed" and Input.is_action_just_pressed("grab"):
-		grab_input_buffered_until_msec = Time.get_ticks_msec() + GRAB_INPUT_BUFFER_MSEC
+		grab_system.call("buffer_input", GRAB_INPUT_BUFFER_MSEC)
 
 	if state == "grabbed":
 		_update_grabbed(delta)
@@ -84,165 +60,27 @@ func _physics_process(delta: float) -> void:
 	_update_hud()
 
 
-func _build_world() -> void:
-	var section_colors: Array[Color] = [
-		Color.html("#1d2730"),
-		Color.html("#26322d"),
-		Color.html("#302c3b"),
-		Color.html("#342c28"),
-		Color.html("#202b3d"),
-	]
-
-	for section in SECTION_COUNT:
-		var top: float = float(section) * SECTION_HEIGHT
-		_add_rect(
-			"Section%dBackground" % (section + 1),
-			Vector2(WORLD_WIDTH * 0.5, top + SECTION_HEIGHT * 0.5),
-			Vector2(WORLD_WIDTH + BACKGROUND_HORIZONTAL_PADDING * 2.0, SECTION_HEIGHT),
-			section_colors[section],
-			false,
-			-20
-		)
-		_add_label_marker(section, top)
-
-	_add_rect("LeftWall", Vector2(-16.0, WORLD_HEIGHT * 0.5), Vector2(32.0, WORLD_HEIGHT), Color.html("#56616b"), true, 0, false)
-	_add_rect("RightWall", Vector2(WORLD_WIDTH + 16.0, WORLD_HEIGHT * 0.5), Vector2(32.0, WORLD_HEIGHT), Color.html("#56616b"), true, 0, false)
-	_add_rect("StartCeiling", Vector2(WORLD_WIDTH * 0.5, -16.0), Vector2(WORLD_WIDTH, 32.0), Color.html("#56616b"), true, 0, false)
-	_add_rect("FinishFloor", Vector2(WORLD_WIDTH * 0.5, WORLD_HEIGHT + 18.0), Vector2(WORLD_WIDTH, 36.0), Color.html("#8fbf6a"), true, 0, false)
-
-	var safe_platforms: Array[Array] = [
-		[Vector2(370, 360), Vector2(380, 32)],
-		[Vector2(710, 610), Vector2(260, 32)],
-		[Vector2(300, 1110), Vector2(260, 32)],
-		[Vector2(420, 1390), Vector2(260, 32)],
-
-		[Vector2(210, 1720), Vector2(250, 30)],
-		[Vector2(250, 1980), Vector2(260, 30)],
-		[Vector2(650, 2570), Vector2(260, 30)],
-		[Vector2(650, 2920), Vector2(260, 30)],
-
-		[Vector2(450, 3240), Vector2(300, 30)],
-		[Vector2(360, 4090), Vector2(220, 30)],
-		[Vector2(260, 4380), Vector2(330, 30)],
-
-		[Vector2(690, 4720), Vector2(260, 28)],
-		[Vector2(620, 5620), Vector2(220, 28)],
-		[Vector2(560, 5900), Vector2(360, 28)],
-
-		[Vector2(320, 6240), Vector2(280, 28)],
-		[Vector2(340, 7150), Vector2(220, 28)],
-		[Vector2(585, 7460), Vector2(390, 28)],
-	]
-
-	for i in safe_platforms.size():
-		var entry: Array = safe_platforms[i]
-		var platform_position: Vector2 = entry[0] as Vector2
-		var platform_size: Vector2 = entry[1] as Vector2
-		_add_rect("SafePlatform%d" % i, platform_position, platform_size, _platform_color(platform_position.y), true, 1, true)
-
-	var diagonal_routes: Array[Array] = [
-		[Vector2(650, 850), -32.0, 100.0, 84.0, 38.0],
-		[Vector2(310, 2300), 32.0, 30.0, 84.0, 38.0],
-		[Vector2(650, 3820), -32.0, 30.0, 72.0, 30.0],
-		[Vector2(310, 5350), 32.0, 30.0, 72.0, 30.0],
-		[Vector2(650, 6870), -32.0, 30.0, 72.0, 30.0],
-	]
-	for i in diagonal_routes.size():
-		var entry: Array = diagonal_routes[i]
-		_add_diagonal_route(
-			"DiagonalSurface%d" % i,
-			entry[0] as Vector2,
-			float(entry[1]),
-			float(entry[2]),
-			float(entry[3]),
-			float(entry[4])
-		)
-
-	var grip_posts: Array[Array] = [
-		[Vector2(110, 1180), Vector2(40, 230)], [Vector2(850, 1660), Vector2(40, 260)], [Vector2(120, 3030), Vector2(40, 280)],
-		[Vector2(850, 4210), Vector2(40, 260)], [Vector2(110, 5360), Vector2(40, 300)], [Vector2(840, 6980), Vector2(40, 320)],
-	]
-	for i in grip_posts.size():
-		var entry: Array = grip_posts[i]
-		var post_position: Vector2 = entry[0] as Vector2
-		var post_size: Vector2 = entry[1] as Vector2
-		_add_rect("GripPost%d" % i, post_position, post_size, Color.html("#78909c"), true, 1, true)
-
-
 func _build_player() -> void:
-	player = CharacterBody2D.new()
-	player.name = "Player"
-	player.collision_layer = 2
-	player.collision_mask = 1
-	player.floor_max_angle = deg_to_rad(20.0)
+	player = PLAYER_CHARACTER.new() as CharacterBody2D
+	player.call("setup", PLAYER_RADIUS, CAMERA_ZOOM, float(level.get("world_width")), float(level.get("world_height")))
 	add_child(player)
-
-	player_shape = CollisionShape2D.new()
-	var circle: CircleShape2D = CircleShape2D.new()
-	circle.radius = PLAYER_RADIUS
-	player_shape.shape = circle
-	player.add_child(player_shape)
-
-	player_body = Polygon2D.new()
-	player_body.color = Color.html("#f5d06f")
-	player_body.polygon = PackedVector2Array([
-		Vector2(0, -24), Vector2(18, -6), Vector2(13, 20), Vector2(-13, 20), Vector2(-18, -6)
-	])
-	player.add_child(player_body)
-
-	camera = Camera2D.new()
-	camera.name = "Camera2D"
-	camera.enabled = true
-	camera.zoom = Vector2.ONE * CAMERA_ZOOM
-	camera.position_smoothing_enabled = true
-	camera.position_smoothing_speed = 6.0
-	camera.limit_left = 0
-	camera.limit_right = int(WORLD_WIDTH)
-	camera.limit_top = 0
-	camera.limit_bottom = int(WORLD_HEIGHT)
-	player.add_child(camera)
 
 
 func _build_hud() -> void:
-	var canvas: CanvasLayer = CanvasLayer.new()
-	canvas.name = "HUD"
-	canvas.layer = 20
-	add_child(canvas)
+	hud = GAME_HUD.new() as CanvasLayer
+	add_child(hud)
+	hud.call("setup")
 
-	var panel: ColorRect = ColorRect.new()
-	panel.color = Color(0.04, 0.05, 0.06, 0.78)
-	panel.position = Vector2(16, 14)
-	panel.size = Vector2(300, 104)
-	canvas.add_child(panel)
 
-	hud_hp = ProgressBar.new()
-	hud_hp.position = Vector2(28, 26)
-	hud_hp.size = Vector2(180, 20)
-	hud_hp.max_value = 100
-	hud_hp.show_percentage = false
-	canvas.add_child(hud_hp)
-
-	hud_charge = ProgressBar.new()
-	hud_charge.position = Vector2(28, 56)
-	hud_charge.size = Vector2(180, 20)
-	hud_charge.max_value = 100
-	hud_charge.show_percentage = false
-	canvas.add_child(hud_charge)
-
-	hud_section = Label.new()
-	hud_section.position = Vector2(224, 24)
-	hud_section.size = Vector2(76, 24)
-	canvas.add_child(hud_section)
-
-	hud_state = Label.new()
-	hud_state.position = Vector2(28, 84)
-	hud_state.size = Vector2(270, 22)
-	canvas.add_child(hud_state)
+func _build_grab_system() -> void:
+	grab_system = GRAB_SYSTEM.new() as RefCounted
+	grab_system.call("configure", player, PLAYER_RADIUS, level.call("get_grab_targets"), level.call("get_slope_grab_handles"))
 
 
 func _update_falling(delta: float) -> void:
 	var was_on_floor: bool = player.is_on_floor()
-	_update_ground_edge_grab_arm(was_on_floor)
+	grab_system.call("update_ground_edge_arm", was_on_floor)
+
 	var axis_x: float = Input.get_axis("move_left", "move_right")
 	var target_speed: float = AIR_MOVE_SPEED
 	var acceleration: float = AIR_CONTROL
@@ -251,18 +89,28 @@ func _update_falling(delta: float) -> void:
 		acceleration = GROUND_ACCELERATION
 		if absf(axis_x) < 0.01:
 			acceleration = GROUND_BRAKE
+
 	player.velocity.x = move_toward(player.velocity.x, axis_x * target_speed, acceleration * delta)
 	player.velocity.y = minf(player.velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
-	speed_edge_effect.set_speed_ratio(IMPACT_DAMAGE.get_warning_ratio(maxf(0.0, player.velocity.y)))
+	speed_edge_effect.call("set_speed_ratio", IMPACT_DAMAGE.get_warning_ratio(maxf(0.0, player.velocity.y)))
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
-	if not player.is_on_floor() and _try_armed_ground_edge_grab():
+
+	var grab_result: Variant = null
+	if not player.is_on_floor():
+		grab_result = grab_system.call("try_armed_ground_edge_grab")
+	if grab_result != null:
+		_enter_grab(grab_result)
 		return
-	if incoming_velocity.y > 0.0 and _try_slope_grab_handle(maxf(0.0, incoming_velocity.y)):
-		return
-	var diagonal_collision := _find_diagonal_slide_collision()
-	if diagonal_collision:
+	if incoming_velocity.y > 0.0:
+		grab_result = grab_system.call("try_slope_grab_handle", maxf(0.0, incoming_velocity.y))
+		if grab_result != null:
+			_enter_grab(grab_result)
+			return
+
+	var diagonal_collision: KinematicCollision2D = _find_diagonal_slide_collision()
+	if diagonal_collision != null:
 		_handle_diagonal_slide(incoming_velocity, diagonal_collision)
 		return
 	active_diagonal_surface = null
@@ -270,39 +118,30 @@ func _update_falling(delta: float) -> void:
 	var is_on_floor: bool = player.is_on_floor()
 	if is_on_floor:
 		if not was_on_floor:
-			var landing_speed := _impact_speed_against_normal(incoming_velocity, player.get_floor_normal())
+			var landing_speed: float = _impact_speed_against_normal(incoming_velocity, player.get_floor_normal())
 			if _apply_impact_damage("착지", landing_speed):
 				return
-		_try_side_grab(GRAB_MODE_EDGE)
+		grab_result = grab_system.call("try_side_grab", GRAB_MODE_EDGE)
+		if grab_result != null:
+			_enter_grab(grab_result)
 		return
 
 	if player.velocity.y > 0.0:
-		if _try_side_grab(GRAB_MODE_SIDE):
+		grab_result = grab_system.call("try_side_grab", GRAB_MODE_SIDE)
+		if grab_result != null:
+			_enter_grab(grab_result)
 			return
 
-	var collision_count: int = player.get_slide_collision_count()
-	if collision_count > 0:
-		var best_collision: KinematicCollision2D = player.get_slide_collision(0)
-		for i in range(collision_count):
-			var collision: KinematicCollision2D = player.get_slide_collision(i)
-			if collision.get_normal().y < best_collision.get_normal().y:
-				best_collision = collision
-
-		if best_collision.get_normal().y > -0.65:
-			var collision_speed := _impact_speed_against_normal(incoming_velocity, best_collision.get_normal())
-			if _apply_impact_damage("충돌", collision_speed):
-				return
-			player.velocity = player.velocity.bounce(best_collision.get_normal()) * 0.28
-			player.velocity.y = minf(player.velocity.y, 120.0)
+	_handle_regular_collision(incoming_velocity)
 
 
 func _update_grabbed(delta: float) -> void:
 	active_diagonal_surface = null
-	speed_edge_effect.set_speed_ratio(0.0)
+	speed_edge_effect.call("set_speed_ratio", 0.0)
 	player.velocity = Vector2.ZERO
 
 	var aim: Vector2 = _get_aim_direction()
-	player_body.rotation = aim.angle() + PI * 0.5
+	player.call("aim_visual_at", aim)
 
 	if Input.is_action_just_pressed("charge_launch"):
 		is_charging_launch = true
@@ -320,174 +159,38 @@ func _update_grabbed(delta: float) -> void:
 		is_charging_launch = false
 
 
-func _try_side_grab(grab_mode: int) -> bool:
-	if not _has_buffered_grab_input():
-		return false
-
-	var player_position: Vector2 = player.global_position
-	for i in grabbable_rects.size():
-		var rect: Rect2 = grabbable_rects[i]
-		var left_side_x: float = rect.position.x
-		var right_side_x: float = rect.end.x
-		if _can_grab_side(rect, left_side_x, -1.0, player_position, grab_mode):
-			_consume_grab_input()
-			_grab_terrain(rect, left_side_x, -1.0, grab_mode)
-			return true
-		if _can_grab_side(rect, right_side_x, 1.0, player_position, grab_mode):
-			_consume_grab_input()
-			_grab_terrain(rect, right_side_x, 1.0, grab_mode)
-			return true
-
-	return false
-
-
-func _update_ground_edge_grab_arm(was_on_floor: bool) -> void:
-	if not Input.is_action_pressed("grab"):
-		ground_edge_grab_rect_index = -1
-		ground_edge_grab_armed_until_msec = -1
-		return
-	if not was_on_floor:
-		return
-
-	var supporting_rect_index := _find_supporting_grabbable_rect_index()
-	if supporting_rect_index < 0:
-		ground_edge_grab_rect_index = -1
-		ground_edge_grab_armed_until_msec = -1
-		return
-	ground_edge_grab_rect_index = supporting_rect_index
-	ground_edge_grab_armed_until_msec = Time.get_ticks_msec() + GROUND_EDGE_GRAB_ARM_MSEC
-
-
-func _find_supporting_grabbable_rect_index() -> int:
-	var player_position := player.global_position
-	var player_feet_y := player_position.y + PLAYER_RADIUS
-	for rect_index in grabbable_rects.size():
-		var rect: Rect2 = grabbable_rects[rect_index]
-		if player_position.x < rect.position.x - PLAYER_RADIUS or player_position.x > rect.end.x + PLAYER_RADIUS:
-			continue
-		if absf(player_feet_y - rect.position.y) <= 6.0:
-			return rect_index
-	return -1
-
-
-func _try_armed_ground_edge_grab() -> bool:
-	if not Input.is_action_pressed("grab"):
-		return false
-	if ground_edge_grab_rect_index < 0:
-		return false
-	if Time.get_ticks_msec() > ground_edge_grab_armed_until_msec:
-		ground_edge_grab_rect_index = -1
-		return false
-
-	var rect: Rect2 = grabbable_rects[ground_edge_grab_rect_index]
-	var player_position := player.global_position
-	var left_side_x := rect.position.x
-	var right_side_x := rect.end.x
-	if _can_grab_side(rect, left_side_x, -1.0, player_position, GRAB_MODE_GROUND_EDGE):
-		_grab_terrain(rect, left_side_x, -1.0, GRAB_MODE_GROUND_EDGE)
-		return true
-	if _can_grab_side(rect, right_side_x, 1.0, player_position, GRAB_MODE_GROUND_EDGE):
-		_grab_terrain(rect, right_side_x, 1.0, GRAB_MODE_GROUND_EDGE)
-		return true
-	return false
-
-
-func _can_grab_side(rect: Rect2, side_x: float, side_direction: float, player_position: Vector2, grab_mode: int) -> bool:
-	var horizontal_gap: float = absf(player_position.x - side_x) - PLAYER_RADIUS
-	var side_distance: float = GRAB_SIDE_DISTANCE
-	if grab_mode == GRAB_MODE_EDGE:
-		side_distance = GRAB_EDGE_DISTANCE
-	elif grab_mode == GRAB_MODE_GROUND_EDGE:
-		side_distance = GROUND_EDGE_GRAB_DISTANCE
-	if horizontal_gap < -PLAYER_RADIUS * 0.35 or horizontal_gap > side_distance:
-		return false
-
-	var is_on_correct_side: bool = false
-	if side_direction < 0.0:
-		is_on_correct_side = player_position.x < side_x
-	else:
-		is_on_correct_side = player_position.x > side_x
-	if not is_on_correct_side:
-		return false
-
-	var player_feet_y: float = player_position.y + PLAYER_RADIUS
-	var is_beside_face: bool = player_position.y >= rect.position.y + minf(PLAYER_RADIUS * 0.35, rect.size.y * 0.5) and player_position.y <= rect.end.y + PLAYER_RADIUS * 0.35
-	var edge_vertical_distance := GRAB_EDGE_VERTICAL_DISTANCE
-	if grab_mode == GRAB_MODE_GROUND_EDGE:
-		edge_vertical_distance = GROUND_EDGE_GRAB_VERTICAL_DISTANCE
-	var is_near_top_edge: bool = grab_mode != GRAB_MODE_SIDE and absf(player_feet_y - rect.position.y) <= edge_vertical_distance
-	if grab_mode != GRAB_MODE_SIDE:
-		return is_near_top_edge
-	return is_beside_face
-
-
-func _grab_terrain(rect: Rect2, side_x: float, side_direction: float, grab_mode: int) -> void:
-	var grab_speed := maxf(0.0, player.velocity.y)
-	var snap_position := player.global_position
-	snap_position.x = side_x + side_direction * (PLAYER_RADIUS + GRAB_SNAP_GAP)
-	if grab_mode != GRAB_MODE_SIDE:
-		snap_position.y = rect.position.y + minf(PLAYER_RADIUS * 0.7, rect.size.y * 0.5)
-	else:
-		var min_y: float = rect.position.y + minf(4.0, rect.size.y * 0.25)
-		var max_y: float = rect.end.y - minf(4.0, rect.size.y * 0.25)
-		snap_position.y = clampf(player.global_position.y, min_y, max_y)
-	_enter_grab(snap_position, grab_speed)
-
-
-func _try_slope_grab_handle(grab_speed: float) -> bool:
-	if not _has_buffered_grab_input():
-		return false
-
-	for handle in slope_grab_handles:
-		var segment_start: Vector2 = handle[0] as Vector2
-		var segment_end: Vector2 = handle[1] as Vector2
-		var grab_reach := float(handle[2])
-		var closest_point := _closest_point_on_segment(
-			player.global_position,
-			segment_start,
-			segment_end
-		)
-		if player.global_position.distance_to(closest_point) > grab_reach:
-			continue
-		_consume_grab_input()
-		_enter_grab(player.global_position, grab_speed)
-		return true
-	return false
-
-
-func _closest_point_on_segment(point: Vector2, segment_start: Vector2, segment_end: Vector2) -> Vector2:
-	var segment := segment_end - segment_start
-	var segment_length_squared := segment.length_squared()
-	if segment_length_squared <= 0.0001:
-		return segment_start
-	var progress := clampf(
-		(point - segment_start).dot(segment) / segment_length_squared,
-		0.0,
-		1.0
-	)
-	return segment_start + segment * progress
-
-
-func _enter_grab(snap_position: Vector2, grab_speed: float) -> void:
-	if _apply_impact_damage("잡기", grab_speed):
+func _enter_grab(result: Variant) -> void:
+	var result_dictionary: Dictionary = result as Dictionary
+	if _apply_impact_damage("잡기", float(result_dictionary["impact_speed"])):
 		return
 	state = "grabbed"
 	player.velocity = Vector2.ZERO
-	player.global_position = snap_position
+	player.global_position = result_dictionary["snap_position"] as Vector2
 	active_diagonal_surface = null
-	grab_input_buffered_until_msec = -1
-	ground_edge_grab_rect_index = -1
-	ground_edge_grab_armed_until_msec = -1
+	grab_system.call("reset")
 	charge = 0.0
 	is_charging_launch = false
 
 
-func _has_buffered_grab_input() -> bool:
-	return grab_input_buffered_until_msec >= Time.get_ticks_msec()
+func _handle_regular_collision(incoming_velocity: Vector2) -> void:
+	var collision_count: int = player.get_slide_collision_count()
+	if collision_count <= 0:
+		return
 
+	var best_collision: KinematicCollision2D = player.get_slide_collision(0)
+	for i in range(collision_count):
+		var collision: KinematicCollision2D = player.get_slide_collision(i)
+		if collision.get_normal().y < best_collision.get_normal().y:
+			best_collision = collision
 
-func _consume_grab_input() -> void:
-	grab_input_buffered_until_msec = -1
+	if best_collision.get_normal().y <= -0.65:
+		return
+
+	var collision_speed: float = _impact_speed_against_normal(incoming_velocity, best_collision.get_normal())
+	if _apply_impact_damage("충돌", collision_speed):
+		return
+	player.velocity = player.velocity.bounce(best_collision.get_normal()) * 0.28
+	player.velocity.y = minf(player.velocity.y, 120.0)
 
 
 func _impact_speed_against_normal(incoming_velocity: Vector2, surface_normal: Vector2) -> float:
@@ -496,34 +199,24 @@ func _impact_speed_against_normal(incoming_velocity: Vector2, surface_normal: Ve
 
 func _find_diagonal_slide_collision() -> KinematicCollision2D:
 	for collision_index in player.get_slide_collision_count():
-		var collision := player.get_slide_collision(collision_index)
-		var collider := collision.get_collider()
+		var collision: KinematicCollision2D = player.get_slide_collision(collision_index)
+		var collider: Object = collision.get_collider()
 		if collider is Node and (collider as Node).is_in_group(DIAGONAL_SLIDE_GROUP):
 			return collision
 	return null
 
 
-func _handle_diagonal_slide(
-	incoming_velocity: Vector2,
-	collision: KinematicCollision2D
-) -> void:
-	var collider := collision.get_collider()
+func _handle_diagonal_slide(incoming_velocity: Vector2, collision: KinematicCollision2D) -> void:
+	var collider: Object = collision.get_collider()
 	if collider == active_diagonal_surface:
 		return
 
 	active_diagonal_surface = collider
-	var surface_normal := collision.get_normal()
-	var impact_speed: float = DIAGONAL_SLIDE_RESPONSE.impact_speed(
-		incoming_velocity,
-		surface_normal
-	)
+	var surface_normal: Vector2 = collision.get_normal()
+	var impact_speed: float = DIAGONAL_SLIDE_RESPONSE.impact_speed(incoming_velocity, surface_normal)
 	if _apply_impact_damage("경사면", impact_speed):
 		return
-	player.velocity = DIAGONAL_SLIDE_RESPONSE.slide_velocity(
-		incoming_velocity,
-		surface_normal,
-		DIAGONAL_SLIDE_SPEED_RETENTION
-	)
+	player.velocity = DIAGONAL_SLIDE_RESPONSE.slide_velocity(incoming_velocity, surface_normal, DIAGONAL_SLIDE_SPEED_RETENTION)
 
 
 func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
@@ -537,9 +230,8 @@ func _apply_impact_damage(reason: String, impact_speed: float) -> bool:
 
 	hp = maxi(0, hp - damage)
 	last_damage_msec = now
-	status_message_until_msec = now + 900
-	hud_state.text = "%s 충격 %d · 피해 -%d" % [reason, int(round(impact_speed)), damage]
-	speed_edge_effect.flash_damage(IMPACT_DAMAGE.get_damage_ratio(impact_speed))
+	hud.call("show_status", "%s 충격 %d · 피해 -%d" % [reason, int(round(impact_speed)), damage])
+	speed_edge_effect.call("flash_damage", IMPACT_DAMAGE.get_damage_ratio(impact_speed))
 
 	if hp <= 0:
 		_reset_player()
@@ -563,140 +255,14 @@ func _reset_player() -> void:
 	is_charging_launch = false
 	state = "falling"
 	last_damage_msec = -1000
-	status_message_until_msec = 0
-	grab_input_buffered_until_msec = -1
-	ground_edge_grab_rect_index = -1
-	ground_edge_grab_armed_until_msec = -1
+	grab_system.call("reset")
 	player.global_position = PLAYER_START
 	player.velocity = Vector2(0.0, 80.0)
-	player_body.rotation = 0.0
-	speed_edge_effect.set_speed_ratio(0.0)
+	player.call("reset_visual")
+	speed_edge_effect.call("set_speed_ratio", 0.0)
 	active_diagonal_surface = null
+	hud.call("clear_status")
 
 
 func _update_hud() -> void:
-	hud_hp.value = hp
-	hud_charge.value = charge * 100.0
-	var section: int = clampi(int(player.global_position.y / SECTION_HEIGHT) + 1, 1, SECTION_COUNT)
-	hud_section.text = "%d / %d" % [section, SECTION_COUNT]
-	if Time.get_ticks_msec() < status_message_until_msec:
-		return
-
-	if state == "grabbed":
-		hud_state.text = "잡는 중"
-	elif hp > 0:
-		hud_state.text = "낙하 중"
-
-
-func _add_rect(node_name: String, center: Vector2, size: Vector2, color: Color, solid: bool, z: int, grabbable: bool = false) -> void:
-	var body: Node2D
-	if solid:
-		var static_body: StaticBody2D = StaticBody2D.new()
-		static_body.collision_layer = 1
-		static_body.collision_mask = 0
-		body = static_body
-	else:
-		body = Node2D.new()
-
-	body.name = node_name
-	body.position = center
-	body.z_index = z
-	add_child(body)
-
-	if solid:
-		var collision_shape: CollisionShape2D = CollisionShape2D.new()
-		var rect_shape: RectangleShape2D = RectangleShape2D.new()
-		rect_shape.size = size
-		collision_shape.shape = rect_shape
-		body.add_child(collision_shape)
-		if grabbable:
-			grabbable_rects.append(Rect2(center - size * 0.5, size))
-
-	var visual: Polygon2D = Polygon2D.new()
-	visual.color = color
-	visual.polygon = PackedVector2Array([
-		Vector2(-size.x * 0.5, -size.y * 0.5),
-		Vector2(size.x * 0.5, -size.y * 0.5),
-		Vector2(size.x * 0.5, size.y * 0.5),
-		Vector2(-size.x * 0.5, size.y * 0.5),
-	])
-	body.add_child(visual)
-
-
-func _add_diagonal_route(
-	node_name: String,
-	center: Vector2,
-	angle_degrees: float,
-	handle_offset: float,
-	handle_length: float,
-	grab_reach: float
-) -> void:
-	_add_diagonal_surface(node_name, center, angle_degrees)
-
-	var angle_radians := deg_to_rad(angle_degrees)
-	var tangent := Vector2.RIGHT.rotated(angle_radians)
-	var downhill_direction := tangent if tangent.y > 0.0 else -tangent
-	var handle_bottom := center + downhill_direction * handle_offset
-	var handle_top := handle_bottom + Vector2.UP * handle_length
-	var handle_center := (handle_top + handle_bottom) * 0.5
-	slope_grab_handles.append([
-		handle_top,
-		handle_bottom,
-		grab_reach,
-	])
-	_add_rect(
-		"%sGrabHandle" % node_name,
-		handle_center,
-		Vector2(SLOPE_GRAB_HANDLE_WIDTH, handle_length),
-		SLOPE_GRAB_HANDLE_COLOR,
-		false,
-		2
-	)
-
-
-func _add_diagonal_surface(
-	node_name: String,
-	center: Vector2,
-	angle_degrees: float
-) -> void:
-	var body := StaticBody2D.new()
-	body.name = node_name
-	body.position = center
-	body.rotation = deg_to_rad(angle_degrees)
-	body.collision_layer = 1
-	body.collision_mask = 0
-	body.z_index = 1
-	body.add_to_group(DIAGONAL_SLIDE_GROUP)
-	add_child(body)
-
-	var collision_shape := CollisionShape2D.new()
-	var rect_shape := RectangleShape2D.new()
-	rect_shape.size = DIAGONAL_SURFACE_SIZE
-	collision_shape.shape = rect_shape
-	body.add_child(collision_shape)
-
-	var half_size := DIAGONAL_SURFACE_SIZE * 0.5
-	var visual := Polygon2D.new()
-	visual.color = DIAGONAL_SURFACE_COLOR
-	visual.polygon = PackedVector2Array([
-		Vector2(-half_size.x, -half_size.y),
-		Vector2(half_size.x, -half_size.y),
-		Vector2(half_size.x, half_size.y),
-		Vector2(-half_size.x, half_size.y),
-	])
-	body.add_child(visual)
-
-
-func _add_label_marker(section: int, top: float) -> void:
-	var label: Label = Label.new()
-	label.text = "PART %d" % (section + 1)
-	label.position = Vector2(34, top + 34)
-	label.modulate = Color(1, 1, 1, 0.38)
-	label.z_index = -5
-	add_child(label)
-
-
-func _platform_color(y: float) -> Color:
-	var section: int = clampi(int(y / SECTION_HEIGHT), 0, SECTION_COUNT - 1)
-	var colors: Array[Color] = [Color.html("#9aa6b2"), Color.html("#94a886"), Color.html("#a098b7"), Color.html("#b09180"), Color.html("#7fa2bd")]
-	return colors[section]
+	hud.call("update_values", hp, charge, player.global_position.y, float(level.call("get_section_height")), int(level.get("section_count")), state)

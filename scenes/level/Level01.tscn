@@ -1,0 +1,212 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/LevelGeometry.gd" id="1_level"]
+[ext_resource type="Script" path="res://scripts/level/PlatformBlock.gd" id="2_block"]
+[ext_resource type="Script" path="res://scripts/level/DiagonalRoute.gd" id="3_diagonal"]
+[ext_resource type="Script" path="res://scripts/level/GrabPoint.gd" id="4_point"]
+
+[node name="Level01" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="SafePlatform0" type="StaticBody2D" parent="."]
+position = Vector2(370, 360)
+script = ExtResource("2_block")
+size = Vector2(380, 32)
+color = Color(0.603922, 0.65098, 0.698039, 1)
+
+[node name="SafePlatform1" type="StaticBody2D" parent="."]
+position = Vector2(710, 610)
+script = ExtResource("2_block")
+size = Vector2(260, 32)
+color = Color(0.603922, 0.65098, 0.698039, 1)
+
+[node name="SafePlatform2" type="StaticBody2D" parent="."]
+position = Vector2(300, 1110)
+script = ExtResource("2_block")
+size = Vector2(260, 32)
+color = Color(0.603922, 0.65098, 0.698039, 1)
+
+[node name="SafePlatform3" type="StaticBody2D" parent="."]
+position = Vector2(420, 1390)
+script = ExtResource("2_block")
+size = Vector2(260, 32)
+color = Color(0.603922, 0.65098, 0.698039, 1)
+
+[node name="SafePlatform4" type="StaticBody2D" parent="."]
+position = Vector2(210, 1720)
+script = ExtResource("2_block")
+size = Vector2(250, 30)
+color = Color(0.580392, 0.658824, 0.52549, 1)
+
+[node name="SafePlatform5" type="StaticBody2D" parent="."]
+position = Vector2(250, 1980)
+script = ExtResource("2_block")
+size = Vector2(260, 30)
+color = Color(0.580392, 0.658824, 0.52549, 1)
+
+[node name="SafePlatform6" type="StaticBody2D" parent="."]
+position = Vector2(650, 2570)
+script = ExtResource("2_block")
+size = Vector2(260, 30)
+color = Color(0.580392, 0.658824, 0.52549, 1)
+
+[node name="SafePlatform7" type="StaticBody2D" parent="."]
+position = Vector2(650, 2920)
+script = ExtResource("2_block")
+size = Vector2(260, 30)
+color = Color(0.580392, 0.658824, 0.52549, 1)
+
+[node name="SafePlatform8" type="StaticBody2D" parent="."]
+position = Vector2(450, 3240)
+script = ExtResource("2_block")
+size = Vector2(300, 30)
+color = Color(0.627451, 0.596078, 0.717647, 1)
+
+[node name="SafePlatform9" type="StaticBody2D" parent="."]
+position = Vector2(360, 4090)
+script = ExtResource("2_block")
+size = Vector2(220, 30)
+color = Color(0.627451, 0.596078, 0.717647, 1)
+
+[node name="SafePlatform10" type="StaticBody2D" parent="."]
+position = Vector2(260, 4380)
+script = ExtResource("2_block")
+size = Vector2(330, 30)
+color = Color(0.627451, 0.596078, 0.717647, 1)
+
+[node name="SafePlatform11" type="StaticBody2D" parent="."]
+position = Vector2(690, 4720)
+script = ExtResource("2_block")
+size = Vector2(260, 28)
+color = Color(0.690196, 0.568627, 0.501961, 1)
+
+[node name="SafePlatform12" type="StaticBody2D" parent="."]
+position = Vector2(620, 5620)
+script = ExtResource("2_block")
+size = Vector2(220, 28)
+color = Color(0.690196, 0.568627, 0.501961, 1)
+
+[node name="SafePlatform13" type="StaticBody2D" parent="."]
+position = Vector2(560, 5900)
+script = ExtResource("2_block")
+size = Vector2(360, 28)
+color = Color(0.690196, 0.568627, 0.501961, 1)
+
+[node name="SafePlatform14" type="StaticBody2D" parent="."]
+position = Vector2(320, 6240)
+script = ExtResource("2_block")
+size = Vector2(280, 28)
+color = Color(0.498039, 0.635294, 0.741176, 1)
+
+[node name="SafePlatform15" type="StaticBody2D" parent="."]
+position = Vector2(340, 7150)
+script = ExtResource("2_block")
+size = Vector2(220, 28)
+color = Color(0.498039, 0.635294, 0.741176, 1)
+
+[node name="SafePlatform16" type="StaticBody2D" parent="."]
+position = Vector2(585, 7460)
+script = ExtResource("2_block")
+size = Vector2(390, 28)
+color = Color(0.498039, 0.635294, 0.741176, 1)
+
+[node name="DiagonalSurface0" type="StaticBody2D" parent="."]
+position = Vector2(650, 850)
+script = ExtResource("3_diagonal")
+angle_degrees = -32.0
+handle_offset = 100.0
+handle_length = 84.0
+handle_reach = 38.0
+
+[node name="DiagonalSurface1" type="StaticBody2D" parent="."]
+position = Vector2(310, 2300)
+script = ExtResource("3_diagonal")
+angle_degrees = 32.0
+handle_offset = 30.0
+handle_length = 84.0
+handle_reach = 38.0
+
+[node name="DiagonalSurface2" type="StaticBody2D" parent="."]
+position = Vector2(650, 3820)
+script = ExtResource("3_diagonal")
+angle_degrees = -32.0
+handle_offset = 30.0
+handle_length = 72.0
+handle_reach = 30.0
+
+[node name="DiagonalSurface3" type="StaticBody2D" parent="."]
+position = Vector2(310, 5350)
+script = ExtResource("3_diagonal")
+angle_degrees = 32.0
+handle_offset = 30.0
+handle_length = 72.0
+handle_reach = 30.0
+
+[node name="DiagonalSurface4" type="StaticBody2D" parent="."]
+position = Vector2(650, 6870)
+script = ExtResource("3_diagonal")
+angle_degrees = -32.0
+handle_offset = 30.0
+handle_length = 72.0
+handle_reach = 30.0
+
+[node name="GripPost0" type="StaticBody2D" parent="."]
+position = Vector2(110, 1180)
+script = ExtResource("2_block")
+size = Vector2(40, 230)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 2
+
+[node name="GripPost1" type="StaticBody2D" parent="."]
+position = Vector2(850, 1660)
+script = ExtResource("2_block")
+size = Vector2(40, 260)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 1
+
+[node name="GripPost2" type="StaticBody2D" parent="."]
+position = Vector2(120, 3030)
+script = ExtResource("2_block")
+size = Vector2(40, 280)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 2
+
+[node name="GripPost3" type="StaticBody2D" parent="."]
+position = Vector2(850, 4210)
+script = ExtResource("2_block")
+size = Vector2(40, 260)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 1
+
+[node name="GripPost4" type="StaticBody2D" parent="."]
+position = Vector2(110, 5360)
+script = ExtResource("2_block")
+size = Vector2(40, 300)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 2
+
+[node name="GripPost5" type="StaticBody2D" parent="."]
+position = Vector2(840, 6980)
+script = ExtResource("2_block")
+size = Vector2(40, 320)
+color = Color(0.470588, 0.564706, 0.611765, 1)
+grab_sides = 1
+
+[node name="GrabPoint0" type="Node2D" parent="."]
+position = Vector2(485, 1525)
+script = ExtResource("4_point")
+
+[node name="GrabPoint1" type="Node2D" parent="."]
+position = Vector2(470, 2760)
+script = ExtResource("4_point")
+grab_reach = 48.0
+
+[node name="GrabPoint2" type="Node2D" parent="."]
+position = Vector2(480, 4550)
+script = ExtResource("4_point")
+grab_reach = 48.0
+
+[node name="GrabPoint3" type="Node2D" parent="."]
+position = Vector2(500, 6100)
+script = ExtResource("4_point")
+grab_reach = 46.0
