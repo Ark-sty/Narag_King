@@ -122,7 +122,9 @@ func _update_falling(delta: float) -> void:
 	if is_on_floor:
 		if not was_on_floor:
 			var landing_speed: float = _impact_speed_against_normal(incoming_velocity, player.get_floor_normal())
-			player.call("trigger_landing_squash", landing_speed / IMPACT_DAMAGE.WARNING_IMPACT_SPEED)
+			var landing_ratio: float = landing_speed / IMPACT_DAMAGE.WARNING_IMPACT_SPEED
+			player.call("trigger_landing_squash", landing_ratio)
+			player.call("add_camera_trauma", IMPACT_DAMAGE.get_damage_ratio(landing_speed))
 			if _apply_impact_damage("착지", landing_speed):
 				return
 		grab_result = grab_system.call("try_side_grab", GRAB_MODE_EDGE)
@@ -166,7 +168,9 @@ func _update_grabbed(delta: float) -> void:
 
 func _enter_grab(result: Variant) -> void:
 	var result_dictionary: Dictionary = result as Dictionary
-	if _apply_impact_damage("잡기", float(result_dictionary["impact_speed"])):
+	var catch_speed: float = float(result_dictionary["impact_speed"])
+	player.call("add_camera_trauma", IMPACT_DAMAGE.get_damage_ratio(catch_speed))
+	if _apply_impact_damage("잡기", catch_speed):
 		return
 	state = "grabbed"
 	player.velocity = Vector2.ZERO
@@ -192,6 +196,7 @@ func _handle_regular_collision(incoming_velocity: Vector2) -> void:
 		return
 
 	var collision_speed: float = _impact_speed_against_normal(incoming_velocity, best_collision.get_normal())
+	player.call("add_camera_trauma", IMPACT_DAMAGE.get_damage_ratio(collision_speed))
 	if _apply_impact_damage("충돌", collision_speed):
 		return
 
@@ -224,6 +229,7 @@ func _handle_diagonal_slide(incoming_velocity: Vector2, collision: KinematicColl
 	active_diagonal_surface = collider
 	var surface_normal: Vector2 = collision.get_normal()
 	var impact_speed: float = DIAGONAL_SLIDE_RESPONSE.impact_speed(incoming_velocity, surface_normal)
+	player.call("add_camera_trauma", IMPACT_DAMAGE.get_damage_ratio(impact_speed))
 	if _apply_impact_damage("경사면", impact_speed):
 		return
 	player.velocity = DIAGONAL_SLIDE_RESPONSE.slide_velocity(incoming_velocity, surface_normal, DIAGONAL_SLIDE_SPEED_RETENTION)

@@ -5,6 +5,9 @@ const STRETCH_RATE := 3.6
 const STRETCH_MAX_SCALE := 0.28
 const LANDING_SQUASH_SCALE := 0.34
 const LANDING_SQUASH_DURATION := 0.22
+const SHAKE_DECAY_RATE := 2.0
+const SHAKE_MAX_OFFSET := 14.0
+const SHAKE_TRAUMA_DEADZONE := 0.08
 
 var body_visual: Polygon2D
 var camera: Camera2D
@@ -14,6 +17,7 @@ var _target_fall_ratio: float = 0.0
 var _displayed_fall_ratio: float = 0.0
 var _squash_scale: Vector2 = Vector2.ONE
 var _squash_tween: Tween
+var _camera_trauma: float = 0.0
 
 
 func setup(player_radius: float, camera_zoom: float, world_width: float, world_height: float) -> void:
@@ -30,6 +34,8 @@ func setup(player_radius: float, camera_zoom: float, world_width: float, world_h
 func _process(delta: float) -> void:
 	_displayed_fall_ratio = move_toward(_displayed_fall_ratio, _target_fall_ratio, STRETCH_RATE * delta)
 	_apply_visual_scale()
+	_camera_trauma = move_toward(_camera_trauma, 0.0, SHAKE_DECAY_RATE * delta)
+	_apply_camera_shake()
 
 
 func aim_visual_at(direction: Vector2) -> void:
@@ -53,15 +59,24 @@ func trigger_landing_squash(strength: float) -> void:
 	_squash_tween.tween_property(self, "_squash_scale", Vector2.ONE, LANDING_SQUASH_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
+func add_camera_trauma(amount: float) -> void:
+	if amount < SHAKE_TRAUMA_DEADZONE:
+		return
+	_camera_trauma = clampf(_camera_trauma + amount, 0.0, 1.0)
+
+
 func reset_visual() -> void:
 	if _squash_tween != null and _squash_tween.is_valid():
 		_squash_tween.kill()
 	_target_fall_ratio = 0.0
 	_displayed_fall_ratio = 0.0
 	_squash_scale = Vector2.ONE
+	_camera_trauma = 0.0
 	if body_visual != null:
 		body_visual.rotation = 0.0
 		body_visual.scale = Vector2.ONE
+	if camera != null:
+		camera.offset = Vector2.ZERO
 
 
 func _apply_visual_scale() -> void:
@@ -69,6 +84,13 @@ func _apply_visual_scale() -> void:
 		return
 	var stretch: Vector2 = Vector2(1.0 - STRETCH_MAX_SCALE * _displayed_fall_ratio * 0.5, 1.0 + STRETCH_MAX_SCALE * _displayed_fall_ratio)
 	body_visual.scale = _squash_scale * stretch
+
+
+func _apply_camera_shake() -> void:
+	if camera == null:
+		return
+	var shake_strength: float = _camera_trauma * _camera_trauma
+	camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * SHAKE_MAX_OFFSET * shake_strength
 
 
 func _build_collision() -> void:
