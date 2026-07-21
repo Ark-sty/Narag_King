@@ -8,8 +8,12 @@ const LANDING_SQUASH_DURATION := 0.22
 const SHAKE_DECAY_RATE := 2.0
 const SHAKE_MAX_OFFSET := 14.0
 const SHAKE_TRAUMA_DEADZONE := 0.08
+const BASE_VISUAL_SCALE := 1.0
+const COLLISION_HEIGHT_MARGIN := 8.0
 
-var body_visual: Polygon2D
+const BODY_TEXTURE := preload("res://sprite/cloaked-poet.png")
+
+var body_visual: Sprite2D
 var camera: Camera2D
 var radius: float = 18.0
 
@@ -39,8 +43,12 @@ func _process(delta: float) -> void:
 
 
 func aim_visual_at(direction: Vector2) -> void:
-	if body_visual != null:
-		body_visual.rotation = direction.angle() + PI * 0.5
+	if body_visual == null:
+		return
+	if direction.x > 0.01:
+		body_visual.flip_h = false
+	elif direction.x < -0.01:
+		body_visual.flip_h = true
 
 
 func set_fall_stretch(ratio: float) -> void:
@@ -73,8 +81,8 @@ func reset_visual() -> void:
 	_squash_scale = Vector2.ONE
 	_camera_trauma = 0.0
 	if body_visual != null:
-		body_visual.rotation = 0.0
-		body_visual.scale = Vector2.ONE
+		body_visual.flip_h = false
+		body_visual.scale = Vector2.ONE * BASE_VISUAL_SCALE
 	if camera != null:
 		camera.offset = Vector2.ZERO
 
@@ -83,7 +91,7 @@ func _apply_visual_scale() -> void:
 	if body_visual == null:
 		return
 	var stretch: Vector2 = Vector2(1.0 - STRETCH_MAX_SCALE * _displayed_fall_ratio * 0.5, 1.0 + STRETCH_MAX_SCALE * _displayed_fall_ratio)
-	body_visual.scale = _squash_scale * stretch
+	body_visual.scale = _squash_scale * stretch * BASE_VISUAL_SCALE
 
 
 func _apply_camera_shake() -> void:
@@ -93,6 +101,10 @@ func _apply_camera_shake() -> void:
 	camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * SHAKE_MAX_OFFSET * shake_strength
 
 
+func _collision_half_height() -> float:
+	return radius + COLLISION_HEIGHT_MARGIN * 0.5
+
+
 func _build_collision() -> void:
 	var player_shape: CollisionShape2D = get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if player_shape == null:
@@ -100,26 +112,24 @@ func _build_collision() -> void:
 		player_shape.name = "CollisionShape2D"
 		add_child(player_shape)
 
-	var circle: CircleShape2D = CircleShape2D.new()
-	circle.radius = radius
-	player_shape.shape = circle
+	var capsule: CapsuleShape2D = CapsuleShape2D.new()
+	capsule.radius = radius
+	capsule.height = radius * 2.0 + COLLISION_HEIGHT_MARGIN
+	player_shape.shape = capsule
 
 
 func _build_visual() -> void:
-	body_visual = get_node_or_null("Visual") as Polygon2D
+	body_visual = get_node_or_null("Visual") as Sprite2D
 	if body_visual == null:
-		body_visual = Polygon2D.new()
+		body_visual = Sprite2D.new()
 		body_visual.name = "Visual"
 		add_child(body_visual)
 
-	body_visual.color = Color.html("#f5d06f")
-	body_visual.polygon = PackedVector2Array([
-		Vector2(0.0, -24.0),
-		Vector2(18.0, -6.0),
-		Vector2(13.0, 20.0),
-		Vector2(-13.0, 20.0),
-		Vector2(-18.0, -6.0),
-	])
+	body_visual.texture = BODY_TEXTURE
+	body_visual.centered = true
+	body_visual.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	body_visual.position = Vector2(0.0, _collision_half_height())
+	body_visual.offset = Vector2(0.0, -BODY_TEXTURE.get_height() * 0.5)
 
 
 func _build_camera(camera_zoom: float, world_width: float, world_height: float) -> void:

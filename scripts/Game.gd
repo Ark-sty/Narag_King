@@ -86,6 +86,7 @@ func _update_falling(delta: float) -> void:
 	grab_system.call("update_ground_edge_arm", was_on_floor)
 
 	var axis_x: float = Input.get_axis("move_left", "move_right")
+	player.call("aim_visual_at", Vector2(axis_x, 0.0))
 	var target_speed: float = AIR_MOVE_SPEED
 	var acceleration: float = AIR_CONTROL
 	if was_on_floor:
