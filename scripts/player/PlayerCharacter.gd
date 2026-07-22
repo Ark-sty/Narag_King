@@ -12,6 +12,11 @@ const BASE_VISUAL_SCALE := 1.0
 const COLLISION_HEIGHT_MARGIN := 8.0
 const LAUNCH_BURST_FRAME_DURATION := 0.1
 const DEATH_FRAME_DURATION := 0.1
+const GRAB_FRAME_DURATION := 0.1
+const AIM_INDICATOR_MIN_LENGTH := 20.0
+const AIM_INDICATOR_MAX_LENGTH := 90.0
+const AIM_INDICATOR_WIDTH := 3.0
+const AIM_INDICATOR_COLOR := Color(1.0, 1.0, 1.0, 0.75)
 
 const BODY_TEXTURE := preload("uid://nh7754r286wo")
 const LAUNCH_CHARGE_TEXTURES: Array[Texture2D] = [
@@ -34,9 +39,20 @@ const DEATH_TEXTURES: Array[Texture2D] = [
 	preload("uid://c0lijitrp421y"),
 	preload("uid://1dw458ktscg4"),
 ]
+const GRAB_TEXTURES: Array[Texture2D] = [
+	preload("uid://dogef54p24tgh"),
+	preload("uid://bysoli1fvsndi"),
+	preload("uid://u1ct4a0uwflt"),
+	preload("uid://be381ud82csxt"),
+	preload("uid://bskxp1gx0sxdv"),
+	preload("uid://cnqx8qkbt7tik"),
+	preload("uid://dwad26ic0jg62"),
+	preload("uid://caqwxyuwtlibl"),
+]
 
 var body_visual: Sprite2D
 var camera: Camera2D
+var aim_indicator: Line2D
 var radius: float = 18.0
 
 var _target_fall_ratio: float = 0.0
@@ -46,6 +62,7 @@ var _squash_tween: Tween
 var _camera_trauma: float = 0.0
 var _launch_burst_elapsed: float = -1.0
 var _death_elapsed: float = -1.0
+var _grab_elapsed: float = -1.0
 
 
 func setup(player_radius: float, camera_zoom: float, world_width: float, world_height: float) -> void:
@@ -57,6 +74,7 @@ func setup(player_radius: float, camera_zoom: float, world_width: float, world_h
 	_build_collision()
 	_build_visual()
 	_build_camera(camera_zoom, world_width, world_height)
+	_build_aim_indicator()
 
 
 func _process(delta: float) -> void:
@@ -66,6 +84,7 @@ func _process(delta: float) -> void:
 	_apply_camera_shake()
 	_advance_launch_burst(delta)
 	_advance_death_animation(delta)
+	_advance_grab_catch(delta)
 
 
 func aim_visual_at(direction: Vector2) -> void:
@@ -77,19 +96,45 @@ func aim_visual_at(direction: Vector2) -> void:
 		body_visual.flip_h = true
 
 
+func update_aim_indicator(aim: Vector2, charge_ratio: float) -> void:
+	if aim_indicator == null:
+		return
+	aim_indicator.visible = true
+	var length: float = lerpf(AIM_INDICATOR_MIN_LENGTH, AIM_INDICATOR_MAX_LENGTH, clampf(charge_ratio, 0.0, 1.0))
+	aim_indicator.points = PackedVector2Array([Vector2.ZERO, aim * length])
+
+
+func hide_aim_indicator() -> void:
+	if aim_indicator != null:
+		aim_indicator.visible = false
+
+
 func set_charge_visual(charge_ratio: float) -> void:
 	if body_visual == null:
 		return
 	if charge_ratio <= 0.0:
-		body_visual.texture = BODY_TEXTURE
+		if _grab_elapsed < 0.0:
+			body_visual.texture = BODY_TEXTURE
 		return
+	_grab_elapsed = -1.0
 	var index: int = clampi(int(charge_ratio * LAUNCH_CHARGE_TEXTURES.size()), 0, LAUNCH_CHARGE_TEXTURES.size() - 1)
 	body_visual.texture = LAUNCH_CHARGE_TEXTURES[index]
+
+
+func play_grab_catch() -> void:
+	if body_visual == null:
+		return
+	_launch_burst_elapsed = -1.0
+	_death_elapsed = -1.0
+	_grab_elapsed = 0.0
+	body_visual.texture = GRAB_TEXTURES[0]
 
 
 func play_launch_burst() -> void:
 	if body_visual == null:
 		return
+	_grab_elapsed = -1.0
+	_death_elapsed = -1.0
 	_launch_burst_elapsed = 0.0
 	body_visual.texture = LAUNCH_BURST_TEXTURES[0]
 
@@ -97,6 +142,8 @@ func play_launch_burst() -> void:
 func play_death_animation() -> void:
 	if body_visual == null:
 		return
+	_grab_elapsed = -1.0
+	_launch_burst_elapsed = -1.0
 	_death_elapsed = 0.0
 	body_visual.texture = DEATH_TEXTURES[0]
 
@@ -132,12 +179,15 @@ func reset_visual() -> void:
 	_camera_trauma = 0.0
 	_launch_burst_elapsed = -1.0
 	_death_elapsed = -1.0
+	_grab_elapsed = -1.0
 	if body_visual != null:
 		body_visual.flip_h = false
 		body_visual.scale = Vector2.ONE * BASE_VISUAL_SCALE
 		body_visual.texture = BODY_TEXTURE
 	if camera != null:
 		camera.offset = Vector2.ZERO
+	if aim_indicator != null:
+		aim_indicator.visible = false
 
 
 func _apply_visual_scale() -> void:
@@ -177,6 +227,15 @@ func _advance_death_animation(delta: float) -> void:
 		body_visual.texture = DEATH_TEXTURES[index]
 
 
+func _advance_grab_catch(delta: float) -> void:
+	if _grab_elapsed < 0.0:
+		return
+	_grab_elapsed += delta
+	var index: int = clampi(int(_grab_elapsed / GRAB_FRAME_DURATION), 0, GRAB_TEXTURES.size() - 1)
+	if body_visual != null:
+		body_visual.texture = GRAB_TEXTURES[index]
+
+
 func _collision_half_height() -> float:
 	return radius + COLLISION_HEIGHT_MARGIN * 0.5
 
@@ -206,6 +265,19 @@ func _build_visual() -> void:
 	body_visual.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	body_visual.position = Vector2(0.0, _collision_half_height())
 	body_visual.offset = Vector2(0.0, -BODY_TEXTURE.get_height() * 0.5)
+
+
+func _build_aim_indicator() -> void:
+	aim_indicator = get_node_or_null("AimIndicator") as Line2D
+	if aim_indicator == null:
+		aim_indicator = Line2D.new()
+		aim_indicator.name = "AimIndicator"
+		add_child(aim_indicator)
+
+	aim_indicator.width = AIM_INDICATOR_WIDTH
+	aim_indicator.default_color = AIM_INDICATOR_COLOR
+	aim_indicator.z_index = 5
+	aim_indicator.visible = false
 
 
 func _build_camera(camera_zoom: float, world_width: float, world_height: float) -> void:

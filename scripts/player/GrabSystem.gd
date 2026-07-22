@@ -198,13 +198,14 @@ func _make_rect_grab_result(rect: Rect2, side_x: float, side_direction: float, g
 		var min_y: float = rect.position.y + minf(4.0, rect.size.y * 0.25)
 		var max_y: float = rect.end.y - minf(4.0, rect.size.y * 0.25)
 		snap_position.y = clampf(player.global_position.y, min_y, max_y)
-	return _make_grab_result(snap_position, maxf(0.0, player.velocity.y))
+	return _make_grab_result(snap_position, maxf(0.0, player.velocity.y), -side_direction)
 
 
-func _make_grab_result(snap_position: Vector2, impact_speed: float) -> Dictionary:
+func _make_grab_result(snap_position: Vector2, impact_speed: float, face_direction: float = 0.0) -> Dictionary:
 	return {
 		"snap_position": snap_position,
 		"impact_speed": impact_speed,
+		"face_direction": face_direction,
 	}
 
 

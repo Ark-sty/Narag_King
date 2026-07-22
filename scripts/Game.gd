@@ -158,7 +158,6 @@ func _update_grabbed(delta: float) -> void:
 	player.velocity = Vector2.ZERO
 
 	var aim: Vector2 = _get_aim_direction()
-	player.call("aim_visual_at", aim)
 
 	if Input.is_action_just_pressed("charge_launch"):
 		is_charging_launch = true
@@ -169,11 +168,13 @@ func _update_grabbed(delta: float) -> void:
 		charge = minf(charge + delta / MAX_CHARGE_TIME, 1.0)
 
 	player.call("set_charge_visual", charge)
+	player.call("update_aim_indicator", aim, charge)
 
 	if is_charging_launch and Input.is_action_just_released("charge_launch"):
 		var speed: float = lerpf(LAUNCH_MIN_SPEED, LAUNCH_MAX_SPEED, charge)
 		player.velocity = aim * speed
 		player.call("play_launch_burst")
+		player.call("hide_aim_indicator")
 		state = "falling"
 		charge = 0.0
 		is_charging_launch = false
@@ -198,6 +199,10 @@ func _enter_grab(result: Variant) -> void:
 	grab_system.call("reset")
 	charge = 0.0
 	is_charging_launch = false
+	var face_direction: float = float(result_dictionary.get("face_direction", 0.0))
+	if absf(face_direction) > 0.01:
+		player.call("aim_visual_at", Vector2(face_direction, 0.0))
+	player.call("play_grab_catch")
 
 
 func _handle_regular_collision(incoming_velocity: Vector2) -> void:
@@ -320,6 +325,7 @@ func _enter_death_hold() -> void:
 	is_charging_launch = false
 	speed_edge_effect.call("set_speed_ratio", 0.0)
 	player.call("set_fall_stretch", 0.0)
+	player.call("hide_aim_indicator")
 	player.call("play_death_animation")
 
 
