@@ -13,6 +13,7 @@ const COLLISION_HEIGHT_MARGIN := 8.0
 const LAUNCH_BURST_FRAME_DURATION := 0.1
 const DEATH_FRAME_DURATION := 0.1
 const GRAB_FRAME_DURATION := 0.1
+const WALK_FRAME_DURATION := 0.08
 const AIM_INDICATOR_MIN_LENGTH := 20.0
 const AIM_INDICATOR_MAX_LENGTH := 90.0
 const AIM_INDICATOR_WIDTH := 3.0
@@ -49,6 +50,16 @@ const GRAB_TEXTURES: Array[Texture2D] = [
 	preload("uid://dwad26ic0jg62"),
 	preload("uid://caqwxyuwtlibl"),
 ]
+const WALK_TEXTURES: Array[Texture2D] = [
+	preload("uid://d0etlb4d2i87h"),
+	preload("uid://dxr03u440egia"),
+	preload("uid://d4brpawsx48y5"),
+	preload("uid://dra06rq1xaqof"),
+	preload("uid://bcg3k63j8s4l2"),
+	preload("uid://crwhyr06qlegt"),
+	preload("uid://1xnvus7kn240"),
+	preload("uid://ba1lujtb3wn4r"),
+]
 
 var body_visual: Sprite2D
 var camera: Camera2D
@@ -63,6 +74,8 @@ var _camera_trauma: float = 0.0
 var _launch_burst_elapsed: float = -1.0
 var _death_elapsed: float = -1.0
 var _grab_elapsed: float = -1.0
+var _walk_elapsed: float = 0.0
+var _is_walking: bool = false
 
 
 func setup(player_radius: float, camera_zoom: float, world_width: float, world_height: float) -> void:
@@ -85,6 +98,7 @@ func _process(delta: float) -> void:
 	_advance_launch_burst(delta)
 	_advance_death_animation(delta)
 	_advance_grab_catch(delta)
+	_advance_walk_cycle(delta)
 
 
 func aim_visual_at(direction: Vector2) -> void:
@@ -109,6 +123,17 @@ func hide_aim_indicator() -> void:
 		aim_indicator.visible = false
 
 
+func set_walking(is_walking: bool) -> void:
+	if _is_walking == is_walking:
+		return
+	_is_walking = is_walking
+	if is_walking:
+		_launch_burst_elapsed = -1.0
+		_walk_elapsed = 0.0
+	elif body_visual != null and _launch_burst_elapsed < 0.0:
+		body_visual.texture = BODY_TEXTURE
+
+
 func set_charge_visual(charge_ratio: float) -> void:
 	if body_visual == null:
 		return
@@ -126,6 +151,7 @@ func play_grab_catch() -> void:
 		return
 	_launch_burst_elapsed = -1.0
 	_death_elapsed = -1.0
+	_is_walking = false
 	_grab_elapsed = 0.0
 	body_visual.texture = GRAB_TEXTURES[0]
 
@@ -135,6 +161,7 @@ func play_launch_burst() -> void:
 		return
 	_grab_elapsed = -1.0
 	_death_elapsed = -1.0
+	_is_walking = false
 	_launch_burst_elapsed = 0.0
 	body_visual.texture = LAUNCH_BURST_TEXTURES[0]
 
@@ -144,6 +171,7 @@ func play_death_animation() -> void:
 		return
 	_grab_elapsed = -1.0
 	_launch_burst_elapsed = -1.0
+	_is_walking = false
 	_death_elapsed = 0.0
 	body_visual.texture = DEATH_TEXTURES[0]
 
@@ -180,6 +208,8 @@ func reset_visual() -> void:
 	_launch_burst_elapsed = -1.0
 	_death_elapsed = -1.0
 	_grab_elapsed = -1.0
+	_is_walking = false
+	_walk_elapsed = 0.0
 	if body_visual != null:
 		body_visual.flip_h = false
 		body_visual.scale = Vector2.ONE * BASE_VISUAL_SCALE
@@ -234,6 +264,15 @@ func _advance_grab_catch(delta: float) -> void:
 	var index: int = clampi(int(_grab_elapsed / GRAB_FRAME_DURATION), 0, GRAB_TEXTURES.size() - 1)
 	if body_visual != null:
 		body_visual.texture = GRAB_TEXTURES[index]
+
+
+func _advance_walk_cycle(delta: float) -> void:
+	if not _is_walking:
+		return
+	_walk_elapsed += delta
+	var index: int = int(_walk_elapsed / WALK_FRAME_DURATION) % WALK_TEXTURES.size()
+	if body_visual != null:
+		body_visual.texture = WALK_TEXTURES[index]
 
 
 func _collision_half_height() -> float:

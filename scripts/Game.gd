@@ -27,6 +27,7 @@ const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 const GRAB_DAMAGE_MULTIPLIER := 0.5
 const DEATH_HOLD_DURATION := 1.0
+const WALK_SPEED_THRESHOLD := 20.0
 
 @onready var level: Node = $Level01
 @onready var death_hands_hazard: Node = $DeathHandsHazard
@@ -106,6 +107,7 @@ func _update_falling(delta: float) -> void:
 	var fall_ratio: float = IMPACT_DAMAGE.get_warning_ratio(maxf(0.0, player.velocity.y))
 	speed_edge_effect.call("set_speed_ratio", fall_ratio)
 	player.call("set_fall_stretch", fall_ratio)
+	player.call("set_walking", was_on_floor and absf(player.velocity.x) > WALK_SPEED_THRESHOLD)
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
