@@ -90,18 +90,6 @@ func _rebuild_generated() -> void:
 	var section_height: float = get_section_height()
 	for section in section_count:
 		var top: float = float(section) * section_height
-		var color: Color = Color.html("#1d2730")
-		if section < section_colors.size():
-			color = section_colors[section]
-		_add_generated_rect(
-			generated,
-			"Section%dBackground" % (section + 1),
-			Vector2(world_width * 0.5, top + section_height * 0.5),
-			Vector2(world_width + background_horizontal_padding * 2.0, section_height),
-			color,
-			false,
-			-20
-		)
 		_add_label_marker(generated, section, top)
 
 	_add_generated_rect(generated, "LeftWall", Vector2(-16.0, world_height * 0.5), Vector2(32.0, world_height), Color.html("#56616b"), true, 0, 0.0, NO_FRICTION_WALL_GROUP)
