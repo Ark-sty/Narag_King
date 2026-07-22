@@ -20,6 +20,7 @@ const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
 	set(value):
 		background_horizontal_padding = value
 		_rebuild_generated()
+# 배경 시각 요소에는 더 이상 연결되지 않음 — 각 Section%dBackground 노드(Level01.tscn)가 modulate를 직접 가짐.
 @export var section_colors: Array[Color] = [
 	Color.html("#1d2730"),
 	Color.html("#26322d"),

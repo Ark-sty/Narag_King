@@ -18,6 +18,7 @@ region_enabled = true
 region_rect = Rect2(0, 0, 1440, 1560)
 texture_filter = 1
 texture_repeat = 2
+modulate = Color(0.7544, 0.8416, 0.92, 1)
 
 [node name="Section2Background" type="Sprite2D" parent="."]
 position = Vector2(480, 2340)
@@ -27,6 +28,7 @@ region_enabled = true
 region_rect = Rect2(0, 1560, 1440, 1560)
 texture_filter = 1
 texture_repeat = 2
+modulate = Color(0.7544, 0.92, 0.851, 1)
 
 [node name="Section3Background" type="Sprite2D" parent="."]
 position = Vector2(480, 3900)
@@ -36,6 +38,7 @@ region_enabled = true
 region_rect = Rect2(0, 3120, 1440, 1560)
 texture_filter = 1
 texture_repeat = 2
+modulate = Color(0.7986, 0.7544, 0.92, 1)
 
 [node name="Section4Background" type="Sprite2D" parent="."]
 position = Vector2(480, 5460)
@@ -45,6 +48,7 @@ region_enabled = true
 region_rect = Rect2(0, 4680, 1440, 1560)
 texture_filter = 1
 texture_repeat = 2
+modulate = Color(0.92, 0.8096, 0.7544, 1)
 
 [node name="Section5Background" type="Sprite2D" parent="."]
 position = Vector2(480, 7020)
@@ -54,6 +58,7 @@ region_enabled = true
 region_rect = Rect2(0, 6240, 1440, 1560)
 texture_filter = 1
 texture_repeat = 2
+modulate = Color(0.7544, 0.8172, 0.92, 1)
 
 [node name="SafePlatform0" type="StaticBody2D" parent="." unique_id=231217680]
 position = Vector2(484, 294)
