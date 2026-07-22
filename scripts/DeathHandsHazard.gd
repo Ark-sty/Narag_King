@@ -2,11 +2,12 @@ class_name DeathHandsHazard
 extends Node2D
 
 const HAND_TEXTURE = preload("res://sprite/망자의_손길.png")
+const VIGNETTE_SHADER = preload("res://shaders/death_vignette.gdshader")
 
 @export var world_width: float = 960.0
 @export var world_height: float = 7800.0
 @export var horizontal_padding: float = 320.0
-@export var start_y: float = 0.0
+@export var start_y: float = -200.0
 @export var descend_speed: float = 18.0
 @export var catch_up_when_above_screen: bool = true
 @export var catch_up_speed: float = 120.0
@@ -14,23 +15,23 @@ const HAND_TEXTURE = preload("res://sprite/망자의_손길.png")
 @export var damage_per_tick: int = 6
 @export var damage_tick_msec: int = 700
 @export var sprite_scale: float = 0.45
-@export var cover_extra_top: float = 10000.0
-@export var cover_color: Color = Color(0.0, 0.0, 0.0, 0.94)
-@export var cover_z_index: int = -30
 @export var hands_z_index: int = 60
+@export var vignette_warning_distance: float = 280.0
 
 var front_y: float = 0.0
 var next_damage_msec: int = 0
 var camera_top_y: float = 0.0
 var has_camera_top: bool = false
-var cover_visual: Polygon2D
 var hand_container: Node2D
+var _vignette_rect: ColorRect
+var _vignette_material: ShaderMaterial
 
 
 func _ready() -> void:
 	z_index = 0
 	front_y = start_y
 	_build_visuals()
+	_build_vignette()
 	_update_visuals()
 
 
@@ -49,6 +50,7 @@ func reset() -> void:
 	front_y = start_y
 	next_damage_msec = 0
 	_update_visuals()
+	_set_vignette_intensity(0.0)
 
 
 func set_camera_top(camera_top_world_y: float) -> void:
@@ -62,14 +64,13 @@ func configure(config_world_width: float, config_world_height: float) -> void:
 	if hand_container != null:
 		remove_child(hand_container)
 		hand_container.queue_free()
-	if cover_visual != null:
-		remove_child(cover_visual)
-		cover_visual.queue_free()
 	_build_visuals()
 	_update_visuals()
 
 
 func get_damage_if_player_in_danger(player_position: Vector2) -> int:
+	_update_vignette(player_position.y)
+
 	if player_position.y > front_y:
 		return 0
 
@@ -82,13 +83,6 @@ func get_damage_if_player_in_danger(player_position: Vector2) -> int:
 
 
 func _build_visuals() -> void:
-	cover_visual = Polygon2D.new()
-	cover_visual.name = "DeathCover"
-	cover_visual.color = cover_color
-	cover_visual.z_as_relative = false
-	cover_visual.z_index = cover_z_index
-	add_child(cover_visual)
-
 	hand_container = Node2D.new()
 	hand_container.name = "Hands"
 	hand_container.z_as_relative = false
@@ -109,16 +103,42 @@ func _build_visuals() -> void:
 
 
 func _update_visuals() -> void:
-	if cover_visual == null or hand_container == null:
+	if hand_container == null:
 		return
 
-	var needed_width: float = world_width + horizontal_padding * 2.0
 	var texture_height: float = float(HAND_TEXTURE.get_height()) * sprite_scale
 	var sprite_top_y: float = front_y - texture_height
-	cover_visual.polygon = PackedVector2Array([
-		Vector2(-horizontal_padding, -cover_extra_top),
-		Vector2(-horizontal_padding + needed_width, -cover_extra_top),
-		Vector2(-horizontal_padding + needed_width, sprite_top_y),
-		Vector2(-horizontal_padding, sprite_top_y),
-	])
 	hand_container.position = Vector2(0.0, sprite_top_y)
+
+
+func _build_vignette() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "DeathVignetteLayer"
+	layer.layer = 9
+	add_child(layer)
+
+	_vignette_material = ShaderMaterial.new()
+	_vignette_material.shader = VIGNETTE_SHADER
+
+	_vignette_rect = ColorRect.new()
+	_vignette_rect.name = "DeathVignetteRect"
+	_vignette_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_vignette_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_vignette_rect.color = Color.WHITE
+	_vignette_rect.material = _vignette_material
+	_vignette_rect.visible = false
+	layer.add_child(_vignette_rect)
+
+
+func _update_vignette(player_top_y: float) -> void:
+	var distance_to_danger: float = player_top_y - front_y
+	var proximity: float = 1.0 - clampf(distance_to_danger / vignette_warning_distance, 0.0, 1.0)
+	_set_vignette_intensity(proximity)
+
+
+func _set_vignette_intensity(intensity: float) -> void:
+	if _vignette_material == null:
+		return
+	_vignette_material.set_shader_parameter("intensity", intensity)
+	if _vignette_rect:
+		_vignette_rect.visible = intensity > 0.001
