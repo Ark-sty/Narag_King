@@ -6,11 +6,13 @@ const VIGNETTE_SHADER = preload("res://shaders/death_vignette.gdshader")
 
 @export var world_width: float = 960.0
 @export var world_height: float = 7800.0
+@export var section_height: float = 1560.0
 @export var horizontal_padding: float = 320.0
 @export var start_y: float = -200.0
 @export var descend_speed: float = 18.0
 @export var catch_up_when_above_screen: bool = true
-@export var catch_up_speed: float = 120.0
+@export var catch_up_speed: float = 100.0
+@export var catch_up_speed_gain_per_section: float = 25.0
 @export var offscreen_top_margin: float = 160.0
 @export var damage_per_tick: int = 6
 @export var damage_tick_msec: int = 700
@@ -40,7 +42,9 @@ func _process(delta: float) -> void:
 	if catch_up_when_above_screen and has_camera_top:
 		var minimum_visible_front_y: float = camera_top_y - offscreen_top_margin
 		if next_front_y < minimum_visible_front_y:
-			next_front_y = minf(minimum_visible_front_y, next_front_y + catch_up_speed * delta)
+			var gap: float = minimum_visible_front_y - front_y
+			var effective_catch_up_speed: float = catch_up_speed + (gap / section_height) * catch_up_speed_gain_per_section
+			next_front_y = minf(minimum_visible_front_y, next_front_y + effective_catch_up_speed * delta)
 
 	front_y = minf(next_front_y, world_height)
 	_update_visuals()
@@ -58,9 +62,10 @@ func set_camera_top(camera_top_world_y: float) -> void:
 	has_camera_top = true
 
 
-func configure(config_world_width: float, config_world_height: float) -> void:
+func configure(config_world_width: float, config_world_height: float, config_section_height: float) -> void:
 	world_width = config_world_width
 	world_height = config_world_height
+	section_height = config_section_height
 	if hand_container != null:
 		remove_child(hand_container)
 		hand_container.queue_free()

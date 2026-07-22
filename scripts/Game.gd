@@ -47,7 +47,7 @@ var death_hold_elapsed: float = 0.0
 
 
 func _ready() -> void:
-	death_hands_hazard.call("configure", float(level.get("world_width")), float(level.get("world_height")))
+	death_hands_hazard.call("configure", float(level.get("world_width")), float(level.get("world_height")), float(level.call("get_section_height")))
 	_build_player()
 	_build_hud()
 	_build_grab_system()
