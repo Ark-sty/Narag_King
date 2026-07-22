@@ -319,6 +319,8 @@ func _enter_death_hold() -> void:
 	charge = 0.0
 	is_charging_launch = false
 	speed_edge_effect.call("set_speed_ratio", 0.0)
+	player.call("set_fall_stretch", 0.0)
+	player.call("play_death_animation")
 
 
 func _reset_player() -> void:

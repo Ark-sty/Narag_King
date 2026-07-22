@@ -11,6 +11,7 @@ const SHAKE_TRAUMA_DEADZONE := 0.08
 const BASE_VISUAL_SCALE := 1.0
 const COLLISION_HEIGHT_MARGIN := 8.0
 const LAUNCH_BURST_FRAME_DURATION := 0.1
+const DEATH_FRAME_DURATION := 0.1
 
 const BODY_TEXTURE := preload("uid://nh7754r286wo")
 const LAUNCH_CHARGE_TEXTURES: Array[Texture2D] = [
@@ -23,6 +24,16 @@ const LAUNCH_BURST_TEXTURES: Array[Texture2D] = [
 	preload("uid://b4t8xy26hnl24"),
 	preload("uid://0o6kn154dj3r"),
 ]
+const DEATH_TEXTURES: Array[Texture2D] = [
+	preload("uid://guhcqvuocyn1"),
+	preload("uid://dbcsuc4n3gsx4"),
+	preload("uid://b6nntpp4pgvn6"),
+	preload("uid://daxme1kode67h"),
+	preload("uid://xaiaf6fey5l7"),
+	preload("uid://cum0qywr8k5h3"),
+	preload("uid://c0lijitrp421y"),
+	preload("uid://1dw458ktscg4"),
+]
 
 var body_visual: Sprite2D
 var camera: Camera2D
@@ -34,6 +45,7 @@ var _squash_scale: Vector2 = Vector2.ONE
 var _squash_tween: Tween
 var _camera_trauma: float = 0.0
 var _launch_burst_elapsed: float = -1.0
+var _death_elapsed: float = -1.0
 
 
 func setup(player_radius: float, camera_zoom: float, world_width: float, world_height: float) -> void:
@@ -53,6 +65,7 @@ func _process(delta: float) -> void:
 	_camera_trauma = move_toward(_camera_trauma, 0.0, SHAKE_DECAY_RATE * delta)
 	_apply_camera_shake()
 	_advance_launch_burst(delta)
+	_advance_death_animation(delta)
 
 
 func aim_visual_at(direction: Vector2) -> void:
@@ -79,6 +92,13 @@ func play_launch_burst() -> void:
 		return
 	_launch_burst_elapsed = 0.0
 	body_visual.texture = LAUNCH_BURST_TEXTURES[0]
+
+
+func play_death_animation() -> void:
+	if body_visual == null:
+		return
+	_death_elapsed = 0.0
+	body_visual.texture = DEATH_TEXTURES[0]
 
 
 func set_fall_stretch(ratio: float) -> void:
@@ -111,6 +131,7 @@ func reset_visual() -> void:
 	_squash_scale = Vector2.ONE
 	_camera_trauma = 0.0
 	_launch_burst_elapsed = -1.0
+	_death_elapsed = -1.0
 	if body_visual != null:
 		body_visual.flip_h = false
 		body_visual.scale = Vector2.ONE * BASE_VISUAL_SCALE
@@ -145,6 +166,15 @@ func _advance_launch_burst(delta: float) -> void:
 		return
 	if body_visual != null:
 		body_visual.texture = LAUNCH_BURST_TEXTURES[index]
+
+
+func _advance_death_animation(delta: float) -> void:
+	if _death_elapsed < 0.0:
+		return
+	_death_elapsed += delta
+	var index: int = clampi(int(_death_elapsed / DEATH_FRAME_DURATION), 0, DEATH_TEXTURES.size() - 1)
+	if body_visual != null:
+		body_visual.texture = DEATH_TEXTURES[index]
 
 
 func _collision_half_height() -> float:
