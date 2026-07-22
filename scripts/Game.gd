@@ -26,6 +26,7 @@ const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 const GRAB_DAMAGE_MULTIPLIER := 0.5
+const DEATH_HOLD_DURATION := 1.0
 
 @onready var level: Node = $Level01
 @onready var death_hands_hazard: Node = $DeathHandsHazard
@@ -40,6 +41,7 @@ var is_charging_launch: bool = false
 var state: String = "falling"
 var last_damage_msec: int = -1000
 var active_diagonal_surface: Object = null
+var death_hold_elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -58,6 +60,8 @@ func _physics_process(delta: float) -> void:
 
 	if state == "grabbed":
 		_update_grabbed(delta)
+	elif state == "dead":
+		_update_dead(delta)
 	else:
 		_update_falling(delta)
 
@@ -175,6 +179,12 @@ func _update_grabbed(delta: float) -> void:
 		is_charging_launch = false
 
 
+func _update_dead(delta: float) -> void:
+	death_hold_elapsed += delta
+	if death_hold_elapsed >= DEATH_HOLD_DURATION:
+		_reset_player()
+
+
 func _enter_grab(result: Variant) -> void:
 	var result_dictionary: Dictionary = result as Dictionary
 	var catch_speed: float = float(result_dictionary["impact_speed"])
@@ -260,12 +270,15 @@ func _apply_impact_damage(reason: String, impact_speed: float, damage_multiplier
 	speed_edge_effect.call("flash_damage", IMPACT_DAMAGE.get_damage_ratio(impact_speed))
 
 	if hp <= 0:
-		_reset_player()
+		_enter_death_hold()
 		return true
 	return false
 
 
 func _apply_death_hands_damage() -> void:
+	if state == "dead":
+		return
+
 	var player_top_position: Vector2 = player.global_position + Vector2.UP * PLAYER_RADIUS
 	var damage: int = int(death_hands_hazard.call("get_damage_if_player_in_danger", player_top_position))
 	if damage <= 0:
@@ -276,7 +289,7 @@ func _apply_death_hands_damage() -> void:
 	speed_edge_effect.call("flash_damage", 0.45)
 
 	if hp <= 0:
-		_reset_player()
+		_enter_death_hold()
 
 
 func _update_death_hands_camera_tracking() -> void:
@@ -299,12 +312,22 @@ func _get_aim_direction() -> Vector2:
 	return direction.normalized()
 
 
+func _enter_death_hold() -> void:
+	state = "dead"
+	death_hold_elapsed = 0.0
+	player.velocity = Vector2.ZERO
+	charge = 0.0
+	is_charging_launch = false
+	speed_edge_effect.call("set_speed_ratio", 0.0)
+
+
 func _reset_player() -> void:
 	hp = 100
 	charge = 0.0
 	is_charging_launch = false
 	state = "falling"
 	last_damage_msec = -1000
+	death_hold_elapsed = 0.0
 	grab_system.call("reset")
 	player.global_position = PLAYER_START
 	player.velocity = Vector2(0.0, 80.0)
