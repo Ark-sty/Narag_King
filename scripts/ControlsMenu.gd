@@ -8,6 +8,7 @@ var _status_label: Label
 var _binding_buttons: Dictionary = {}
 var _waiting_action: StringName = &""
 var _was_paused := false
+var _launcher_enabled: bool = true
 
 
 func _ready() -> void:
@@ -38,6 +39,16 @@ func _input(event: InputEvent) -> void:
 func _exit_tree() -> void:
 	if is_instance_valid(_overlay) and _overlay.visible:
 		get_tree().paused = _was_paused
+
+
+func open_menu() -> void:
+	_open_menu()
+
+
+func set_launcher_enabled(enabled: bool) -> void:
+	_launcher_enabled = enabled
+	if _open_button != null:
+		_open_button.visible = enabled and not _overlay.visible
 
 
 func _build_ui() -> void:
@@ -153,7 +164,7 @@ func _close_menu() -> void:
 	_waiting_action = &""
 	_refresh_binding_buttons()
 	_overlay.visible = false
-	_open_button.visible = true
+	_open_button.visible = _launcher_enabled
 	get_tree().paused = _was_paused
 
 

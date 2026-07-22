@@ -33,6 +33,8 @@ const WALK_SPEED_THRESHOLD := 20.0
 @onready var level: Node = $Level01
 @onready var death_hands_hazard: Node = $DeathHandsHazard
 @onready var speed_edge_effect: CanvasLayer = $SpeedEdgeEffect
+@onready var controls_menu: CanvasLayer = $ControlsMenu
+@onready var main_menu: CanvasLayer = $MainMenu
 
 var player: CharacterBody2D
 var hud: CanvasLayer
@@ -54,6 +56,9 @@ func _ready() -> void:
 	_build_hud()
 	_build_grab_system()
 	_reset_player()
+	controls_menu.call("set_launcher_enabled", false)
+	main_menu.connect("play_requested", Callable(self, "_start_game"))
+	main_menu.connect("controls_requested", Callable(self, "_open_controls_from_main_menu"))
 
 
 func _physics_process(delta: float) -> void:
@@ -94,6 +99,17 @@ func _build_hud() -> void:
 func _build_grab_system() -> void:
 	grab_system = GRAB_SYSTEM.new() as RefCounted
 	grab_system.call("configure", player, PLAYER_RADIUS, level.call("get_grab_targets"), level.call("get_slope_grab_handles"))
+
+
+func _start_game() -> void:
+	_reset_player()
+	main_menu.call("hide_menu")
+	controls_menu.call("set_launcher_enabled", true)
+	get_tree().paused = false
+
+
+func _open_controls_from_main_menu() -> void:
+	controls_menu.call("open_menu")
 
 
 func _update_falling(delta: float) -> void:
