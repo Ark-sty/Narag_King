@@ -65,7 +65,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.7544, 0.8172, 0.92, 1)
 
-[node name="Section1WallDepthLeft" type="Sprite2D" parent="."]
+[node name="Section1WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 780)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -76,7 +76,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.891, 0.9431, 0.99, 1)
 
-[node name="Section1WallDepthRight" type="Sprite2D" parent="."]
+[node name="Section1WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 780)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -87,7 +87,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.891, 0.9431, 0.99, 1)
 
-[node name="Section2WallDepthLeft" type="Sprite2D" parent="."]
+[node name="Section2WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 2340)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -98,7 +98,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.891, 0.99, 0.9487, 1)
 
-[node name="Section2WallDepthRight" type="Sprite2D" parent="."]
+[node name="Section2WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 2340)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -109,7 +109,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.891, 0.99, 0.9487, 1)
 
-[node name="Section3WallDepthLeft" type="Sprite2D" parent="."]
+[node name="Section3WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 3900)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -120,7 +120,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.9174, 0.891, 0.99, 1)
 
-[node name="Section3WallDepthRight" type="Sprite2D" parent="."]
+[node name="Section3WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 3900)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -131,7 +131,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.9174, 0.891, 0.99, 1)
 
-[node name="Section4WallDepthLeft" type="Sprite2D" parent="."]
+[node name="Section4WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 5460)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -142,7 +142,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.99, 0.924, 0.891, 1)
 
-[node name="Section4WallDepthRight" type="Sprite2D" parent="."]
+[node name="Section4WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 5460)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -153,7 +153,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.99, 0.924, 0.891, 1)
 
-[node name="Section5WallDepthLeft" type="Sprite2D" parent="."]
+[node name="Section5WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 7020)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -164,7 +164,7 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.891, 0.9286, 0.99, 1)
 
-[node name="Section5WallDepthRight" type="Sprite2D" parent="."]
+[node name="Section5WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 7020)
 scale = Vector2(1.6, 1.6)
 z_index = -10
@@ -175,70 +175,70 @@ texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.891, 0.9286, 0.99, 1)
 
-[node name="Section1WallDepthSeamLeft" type="Line2D" parent="."]
+[node name="Section1WallSurfaceSeamLeft" type="Line2D" parent="."]
 position = Vector2(0, 780)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3796, 0.4071, 0.4318, 1)
 
-[node name="Section1WallDepthSeamRight" type="Line2D" parent="."]
+[node name="Section1WallSurfaceSeamRight" type="Line2D" parent="."]
 position = Vector2(960, 780)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3796, 0.4071, 0.4318, 1)
 
-[node name="Section2WallDepthSeamLeft" type="Line2D" parent="."]
+[node name="Section2WallSurfaceSeamLeft" type="Line2D" parent="."]
 position = Vector2(0, 2340)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4043, 0.4373, 0.4235, 1)
 
-[node name="Section2WallDepthSeamRight" type="Line2D" parent="."]
+[node name="Section2WallSurfaceSeamRight" type="Line2D" parent="."]
 position = Vector2(960, 2340)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4043, 0.4373, 0.4235, 1)
 
-[node name="Section3WallDepthSeamLeft" type="Line2D" parent="."]
+[node name="Section3WallSurfaceSeamLeft" type="Line2D" parent="."]
 position = Vector2(0, 3900)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4318, 0.4208, 0.462, 1)
 
-[node name="Section3WallDepthSeamRight" type="Line2D" parent="."]
+[node name="Section3WallSurfaceSeamRight" type="Line2D" parent="."]
 position = Vector2(960, 3900)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4318, 0.4208, 0.462, 1)
 
-[node name="Section4WallDepthSeamLeft" type="Line2D" parent="."]
+[node name="Section4WallSurfaceSeamLeft" type="Line2D" parent="."]
 position = Vector2(0, 5460)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4427, 0.4208, 0.4098, 1)
 
-[node name="Section4WallDepthSeamRight" type="Line2D" parent="."]
+[node name="Section4WallSurfaceSeamRight" type="Line2D" parent="."]
 position = Vector2(960, 5460)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4427, 0.4208, 0.4098, 1)
 
-[node name="Section5WallDepthSeamLeft" type="Line2D" parent="."]
+[node name="Section5WallSurfaceSeamLeft" type="Line2D" parent="."]
 position = Vector2(0, 7020)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3878, 0.418, 0.4675, 1)
 
-[node name="Section5WallDepthSeamRight" type="Line2D" parent="."]
+[node name="Section5WallSurfaceSeamRight" type="Line2D" parent="."]
 position = Vector2(960, 7020)
 z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
