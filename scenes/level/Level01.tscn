@@ -4,10 +4,56 @@
 [ext_resource type="Script" uid="uid://bv8bpg7lafwvs" path="res://scripts/level/PlatformBlock.gd" id="2_block"]
 [ext_resource type="Script" uid="uid://de2vws2crfwsh" path="res://scripts/level/DiagonalRoute.gd" id="3_diagonal"]
 [ext_resource type="Script" uid="uid://2yba04w5km7q" path="res://scripts/level/GrabPoint.gd" id="4_point"]
+[ext_resource type="Texture2D" uid="uid://b03buic7vh043" path="res://sprite/stone_wall.png" id="5_stone"]
 
 [node name="Level01" type="Node2D" unique_id=1529245048]
 script = ExtResource("1_level")
 section_colors = Array[Color]([Color(0.11372549, 0.15294118, 0.1882353, 1), Color(0.14901961, 0.19607843, 0.1764706, 1), Color(0.1882353, 0.17254902, 0.23137255, 1), Color(0.20392157, 0.17254902, 0.15686275, 1), Color(0.1254902, 0.16862746, 0.23921569, 1)])
+
+[node name="Section1Background" type="Sprite2D" parent="."]
+position = Vector2(480, 780)
+z_index = -20
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 0, 1440, 1560)
+texture_filter = 1
+texture_repeat = 2
+
+[node name="Section2Background" type="Sprite2D" parent="."]
+position = Vector2(480, 2340)
+z_index = -20
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 1560, 1440, 1560)
+texture_filter = 1
+texture_repeat = 2
+
+[node name="Section3Background" type="Sprite2D" parent="."]
+position = Vector2(480, 3900)
+z_index = -20
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 3120, 1440, 1560)
+texture_filter = 1
+texture_repeat = 2
+
+[node name="Section4Background" type="Sprite2D" parent="."]
+position = Vector2(480, 5460)
+z_index = -20
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 4680, 1440, 1560)
+texture_filter = 1
+texture_repeat = 2
+
+[node name="Section5Background" type="Sprite2D" parent="."]
+position = Vector2(480, 7020)
+z_index = -20
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 6240, 1440, 1560)
+texture_filter = 1
+texture_repeat = 2
 
 [node name="SafePlatform0" type="StaticBody2D" parent="." unique_id=231217680]
 position = Vector2(484, 294)
