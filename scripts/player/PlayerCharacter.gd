@@ -18,6 +18,7 @@ const AIM_INDICATOR_MIN_LENGTH := 20.0
 const AIM_INDICATOR_MAX_LENGTH := 90.0
 const AIM_INDICATOR_WIDTH := 3.0
 const AIM_INDICATOR_COLOR := Color(1.0, 1.0, 1.0, 0.75)
+const PLAYER_Z_INDEX := 20
 
 const BODY_TEXTURE := preload("uid://nh7754r286wo")
 const LAUNCH_CHARGE_TEXTURES: Array[Texture2D] = [
@@ -81,6 +82,8 @@ var _is_walking: bool = false
 func setup(player_radius: float, camera_zoom: float, world_width: float, world_height: float) -> void:
 	radius = player_radius
 	name = "Player"
+	z_as_relative = false
+	z_index = PLAYER_Z_INDEX
 	collision_layer = 2
 	collision_mask = 1
 	floor_max_angle = deg_to_rad(20.0)

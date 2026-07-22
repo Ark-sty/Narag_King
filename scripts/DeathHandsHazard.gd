@@ -17,6 +17,9 @@ const VIGNETTE_SHADER = preload("res://shaders/death_vignette.gdshader")
 @export var damage_per_tick: int = 6
 @export var damage_tick_msec: int = 700
 @export var sprite_scale: float = 0.45
+@export var cover_extra_top: float = 10000.0
+@export var cover_color: Color = Color.BLACK
+@export var cover_z_index: int = 10
 @export var hands_z_index: int = 60
 @export var vignette_warning_distance: float = 280.0
 
@@ -24,6 +27,7 @@ var front_y: float = 0.0
 var next_damage_msec: int = 0
 var camera_top_y: float = 0.0
 var has_camera_top: bool = false
+var cover: Polygon2D
 var hand_container: Node2D
 var _vignette_rect: ColorRect
 var _vignette_material: ShaderMaterial
@@ -66,9 +70,14 @@ func configure(config_world_width: float, config_world_height: float, config_sec
 	world_width = config_world_width
 	world_height = config_world_height
 	section_height = config_section_height
+	if cover != null:
+		remove_child(cover)
+		cover.queue_free()
+		cover = null
 	if hand_container != null:
 		remove_child(hand_container)
 		hand_container.queue_free()
+		hand_container = null
 	_build_visuals()
 	_update_visuals()
 
@@ -88,6 +97,13 @@ func get_damage_if_player_in_danger(player_position: Vector2) -> int:
 
 
 func _build_visuals() -> void:
+	cover = Polygon2D.new()
+	cover.name = "BlackCover"
+	cover.color = cover_color
+	cover.z_as_relative = false
+	cover.z_index = cover_z_index
+	add_child(cover)
+
 	hand_container = Node2D.new()
 	hand_container.name = "Hands"
 	hand_container.z_as_relative = false
@@ -108,12 +124,21 @@ func _build_visuals() -> void:
 
 
 func _update_visuals() -> void:
-	if hand_container == null:
+	if hand_container == null or cover == null:
 		return
 
 	var texture_height: float = float(HAND_TEXTURE.get_height()) * sprite_scale
 	var sprite_top_y: float = front_y - texture_height
 	hand_container.position = Vector2(0.0, sprite_top_y)
+
+	var cover_left: float = -horizontal_padding
+	var cover_right: float = world_width + horizontal_padding
+	cover.polygon = PackedVector2Array([
+		Vector2(cover_left, sprite_top_y - cover_extra_top),
+		Vector2(cover_right, sprite_top_y - cover_extra_top),
+		Vector2(cover_right, sprite_top_y),
+		Vector2(cover_left, sprite_top_y),
+	])
 
 
 func _build_vignette() -> void:

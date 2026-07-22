@@ -37,13 +37,15 @@ const WALK_SPEED_THRESHOLD := 20.0
 var player: CharacterBody2D
 var hud: CanvasLayer
 var grab_system: RefCounted
-var hp: int = 100
+var hp: int = 90
 var charge: float = 0.0
 var is_charging_launch: bool = false
 var state: String = "falling"
 var last_damage_msec: int = -1000
 var active_diagonal_surface: Object = null
 var death_hold_elapsed: float = 0.0
+var run_elapsed_seconds: float = 0.0
+var total_damage_taken: int = 0
 
 
 func _ready() -> void:
@@ -57,6 +59,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("restart"):
 		_reset_player()
+	if state == "falling" or state == "grabbed":
+		run_elapsed_seconds += delta
 	if state != "grabbed" and Input.is_action_just_pressed("grab"):
 		grab_system.call("buffer_input", GRAB_INPUT_BUFFER_MSEC)
 
@@ -288,9 +292,11 @@ func _apply_impact_damage(reason: String, impact_speed: float, damage_multiplier
 	if now - last_damage_msec < 450:
 		return false
 
-	hp = maxi(0, hp - damage)
+	var applied_damage: int = mini(hp, damage)
+	hp -= applied_damage
+	total_damage_taken += applied_damage
 	last_damage_msec = now
-	hud.call("show_status", "%s 충격 %d · 피해 -%d" % [reason, int(round(impact_speed)), damage])
+	hud.call("show_status", "%s 충격 %d · 피해 -%d" % [reason, int(round(impact_speed)), applied_damage])
 	speed_edge_effect.call("flash_damage", IMPACT_DAMAGE.get_damage_ratio(impact_speed))
 
 	if hp <= 0:
@@ -308,8 +314,10 @@ func _apply_death_hands_damage() -> void:
 	if damage <= 0:
 		return
 
-	hp = maxi(0, hp - damage)
-	hud.call("show_status", "망자의 손길 · 피해 -%d" % damage)
+	var applied_damage: int = mini(hp, damage)
+	hp -= applied_damage
+	total_damage_taken += applied_damage
+	hud.call("show_status", "망자의 손길 · 피해 -%d" % applied_damage)
 	speed_edge_effect.call("flash_damage", 0.45)
 
 	if hp <= 0:
@@ -356,7 +364,7 @@ func _enter_cleared() -> void:
 	speed_edge_effect.call("set_speed_ratio", 0.0)
 	player.call("set_fall_stretch", 0.0)
 	player.call("hide_aim_indicator")
-	hud.call("show_cleared")
+	hud.call("show_cleared", run_elapsed_seconds, total_damage_taken)
 
 
 func _reset_player() -> void:
@@ -366,6 +374,8 @@ func _reset_player() -> void:
 	state = "falling"
 	last_damage_msec = -1000
 	death_hold_elapsed = 0.0
+	run_elapsed_seconds = 0.0
+	total_damage_taken = 0
 	grab_system.call("reset")
 	player.global_position = PLAYER_START
 	player.velocity = Vector2(0.0, 80.0)
@@ -378,4 +388,4 @@ func _reset_player() -> void:
 
 
 func _update_hud() -> void:
-	hud.call("update_values", hp, charge, player.global_position.y, float(level.call("get_section_height")), int(level.get("section_count")), state)
+	hud.call("update_values", hp, charge, player.global_position.y, float(level.call("get_section_height")), int(level.get("section_count")), state, run_elapsed_seconds)

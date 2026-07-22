@@ -7,8 +7,10 @@ var hp_bar: ProgressBar
 var charge_bar: ProgressBar
 var section_label: Label
 var state_label: Label
+var timer_label: Label
 var status_message_until_msec: int = 0
 var clear_overlay: Control
+var clear_result_label: Label
 var restart_button: Button
 
 
@@ -23,10 +25,11 @@ func setup() -> void:
 	_build_ui()
 
 
-func update_values(hp: int, charge: float, player_y: float, section_height: float, section_count: int, state: String) -> void:
+func update_values(hp: int, charge: float, player_y: float, section_height: float, section_count: int, state: String, elapsed_seconds: float) -> void:
 	setup()
 	hp_bar.value = hp
 	charge_bar.value = charge * 100.0
+	timer_label.text = _format_time(elapsed_seconds)
 	var section: int = clampi(int(player_y / section_height) + 1, 1, section_count)
 	section_label.text = "%d / %d" % [section, section_count]
 	if Time.get_ticks_msec() < status_message_until_msec:
@@ -50,8 +53,9 @@ func clear_status() -> void:
 	status_message_until_msec = 0
 
 
-func show_cleared() -> void:
+func show_cleared(elapsed_seconds: float, total_damage_taken: int) -> void:
 	setup()
+	clear_result_label.text = "기록  %s\n총 받은 피해  %d HP" % [_format_time(elapsed_seconds), total_damage_taken]
 	clear_overlay.visible = true
 
 
@@ -91,6 +95,21 @@ func _build_ui() -> void:
 	state_label.size = Vector2(270.0, 22.0)
 	add_child(state_label)
 
+	timer_label = Label.new()
+	timer_label.name = "RunTimer"
+	timer_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	timer_label.offset_left = -90.0
+	timer_label.offset_top = 16.0
+	timer_label.offset_right = 90.0
+	timer_label.offset_bottom = 50.0
+	timer_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	timer_label.add_theme_font_size_override("font_size", 24)
+	timer_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
+	timer_label.add_theme_constant_override("outline_size", 6)
+	timer_label.text = _format_time(0.0)
+	add_child(timer_label)
+
 	_build_clear_overlay()
 
 
@@ -117,6 +136,12 @@ func _build_clear_overlay() -> void:
 	title.add_theme_font_size_override("font_size", 40)
 	layout.add_child(title)
 
+	clear_result_label = Label.new()
+	clear_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	clear_result_label.add_theme_font_size_override("font_size", 22)
+	clear_result_label.text = "기록  0.00초\n총 받은 피해  0 HP"
+	layout.add_child(clear_result_label)
+
 	restart_button = Button.new()
 	restart_button.text = "다시 시작"
 	restart_button.focus_mode = Control.FOCUS_NONE
@@ -127,3 +152,7 @@ func _build_clear_overlay() -> void:
 
 func _on_restart_pressed() -> void:
 	restart_requested.emit()
+
+
+func _format_time(elapsed_seconds: float) -> String:
+	return "%.2f초" % elapsed_seconds
