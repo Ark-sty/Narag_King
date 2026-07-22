@@ -1,11 +1,15 @@
 class_name GameHud
 extends CanvasLayer
 
+signal restart_requested
+
 var hp_bar: ProgressBar
 var charge_bar: ProgressBar
 var section_label: Label
 var state_label: Label
 var status_message_until_msec: int = 0
+var clear_overlay: Control
+var restart_button: Button
 
 
 func _ready() -> void:
@@ -30,6 +34,8 @@ func update_values(hp: int, charge: float, player_y: float, section_height: floa
 
 	if state == "grabbed":
 		state_label.text = "잡는 중"
+	elif state == "cleared":
+		state_label.text = "클리어!"
 	elif hp > 0:
 		state_label.text = "낙하 중"
 
@@ -42,6 +48,16 @@ func show_status(message: String, duration_msec: int = 900) -> void:
 
 func clear_status() -> void:
 	status_message_until_msec = 0
+
+
+func show_cleared() -> void:
+	setup()
+	clear_overlay.visible = true
+
+
+func hide_cleared() -> void:
+	setup()
+	clear_overlay.visible = false
 
 
 func _build_ui() -> void:
@@ -74,3 +90,40 @@ func _build_ui() -> void:
 	state_label.position = Vector2(28.0, 84.0)
 	state_label.size = Vector2(270.0, 22.0)
 	add_child(state_label)
+
+	_build_clear_overlay()
+
+
+func _build_clear_overlay() -> void:
+	clear_overlay = Control.new()
+	clear_overlay.name = "ClearOverlay"
+	clear_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	clear_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	clear_overlay.visible = false
+	add_child(clear_overlay)
+
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	clear_overlay.add_child(center)
+
+	var layout := VBoxContainer.new()
+	layout.alignment = BoxContainer.ALIGNMENT_CENTER
+	layout.add_theme_constant_override("separation", 18)
+	center.add_child(layout)
+
+	var title := Label.new()
+	title.text = "클리어!"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 40)
+	layout.add_child(title)
+
+	restart_button = Button.new()
+	restart_button.text = "다시 시작"
+	restart_button.focus_mode = Control.FOCUS_NONE
+	restart_button.custom_minimum_size = Vector2(160.0, 44.0)
+	restart_button.pressed.connect(_on_restart_pressed)
+	layout.add_child(restart_button)
+
+
+func _on_restart_pressed() -> void:
+	restart_requested.emit()

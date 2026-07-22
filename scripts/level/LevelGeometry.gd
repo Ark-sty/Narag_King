@@ -3,6 +3,7 @@ class_name LevelGeometry
 extends Node2D
 
 const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
+const FINISH_FLOOR_GROUP := &"finish_floor"
 
 @export var world_width: float = 960.0:
 	set(value):
@@ -96,7 +97,7 @@ func _rebuild_generated() -> void:
 	_add_generated_rect(generated, "LeftWall", Vector2(-16.0, world_height * 0.5), Vector2(32.0, world_height), Color.html("#56616b"), true, 0, 0.0, NO_FRICTION_WALL_GROUP)
 	_add_generated_rect(generated, "RightWall", Vector2(world_width + 16.0, world_height * 0.5), Vector2(32.0, world_height), Color.html("#56616b"), true, 0, 0.0, NO_FRICTION_WALL_GROUP)
 	_add_generated_rect(generated, "StartCeiling", Vector2(world_width * 0.5, -16.0), Vector2(world_width, 32.0), Color.html("#56616b"), true, 0)
-	_add_generated_rect(generated, "FinishFloor", Vector2(world_width * 0.5, world_height + 18.0), Vector2(world_width, 36.0), Color.html("#8fbf6a"), true, 0)
+	_add_generated_rect(generated, "FinishFloor", Vector2(world_width * 0.5, world_height + 18.0), Vector2(world_width, 36.0), Color.html("#8fbf6a"), true, 0, -1.0, FINISH_FLOOR_GROUP)
 
 
 func _add_generated_rect(parent: Node, node_name: String, center: Vector2, size: Vector2, color: Color, solid: bool, z: int, friction: float = -1.0, group: StringName = &"") -> void:

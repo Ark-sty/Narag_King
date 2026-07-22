@@ -24,6 +24,7 @@ const GRAB_MODE_SIDE := 0
 const GRAB_MODE_EDGE := 1
 const DIAGONAL_SLIDE_GROUP := &"diagonal_slide_surface"
 const NO_FRICTION_WALL_GROUP := &"no_friction_wall"
+const FINISH_FLOOR_GROUP := &"finish_floor"
 const DIAGONAL_SLIDE_SPEED_RETENTION := 0.78
 const GRAB_DAMAGE_MULTIPLIER := 0.5
 const DEATH_HOLD_DURATION := 1.0
@@ -63,6 +64,8 @@ func _physics_process(delta: float) -> void:
 		_update_grabbed(delta)
 	elif state == "dead":
 		_update_dead(delta)
+	elif state == "cleared":
+		pass
 	else:
 		_update_falling(delta)
 
@@ -81,6 +84,7 @@ func _build_hud() -> void:
 	hud = GAME_HUD.new() as CanvasLayer
 	add_child(hud)
 	hud.call("setup")
+	hud.connect("restart_requested", Callable(self, "_reset_player"))
 
 
 func _build_grab_system() -> void:
@@ -111,6 +115,10 @@ func _update_falling(delta: float) -> void:
 
 	var incoming_velocity: Vector2 = player.velocity
 	player.move_and_slide()
+
+	if _is_touching_finish_floor():
+		_enter_cleared()
+		return
 
 	var grab_result: Variant = null
 	if not player.is_on_floor():
@@ -247,6 +255,15 @@ func _find_diagonal_slide_collision() -> KinematicCollision2D:
 	return null
 
 
+func _is_touching_finish_floor() -> bool:
+	for collision_index in player.get_slide_collision_count():
+		var collision: KinematicCollision2D = player.get_slide_collision(collision_index)
+		var collider: Object = collision.get_collider()
+		if collider is Node and (collider as Node).is_in_group(FINISH_FLOOR_GROUP):
+			return true
+	return false
+
+
 func _handle_diagonal_slide(incoming_velocity: Vector2, collision: KinematicCollision2D) -> void:
 	var collider: Object = collision.get_collider()
 	if collider == active_diagonal_surface:
@@ -283,7 +300,7 @@ func _apply_impact_damage(reason: String, impact_speed: float, damage_multiplier
 
 
 func _apply_death_hands_damage() -> void:
-	if state == "dead":
+	if state == "dead" or state == "cleared":
 		return
 
 	var player_top_position: Vector2 = player.global_position + Vector2.UP * PLAYER_RADIUS
@@ -331,6 +348,17 @@ func _enter_death_hold() -> void:
 	player.call("play_death_animation")
 
 
+func _enter_cleared() -> void:
+	state = "cleared"
+	player.velocity = Vector2.ZERO
+	charge = 0.0
+	is_charging_launch = false
+	speed_edge_effect.call("set_speed_ratio", 0.0)
+	player.call("set_fall_stretch", 0.0)
+	player.call("hide_aim_indicator")
+	hud.call("show_cleared")
+
+
 func _reset_player() -> void:
 	hp = 100
 	charge = 0.0
@@ -346,6 +374,7 @@ func _reset_player() -> void:
 	death_hands_hazard.call("reset")
 	active_diagonal_surface = null
 	hud.call("clear_status")
+	hud.call("hide_cleared")
 
 
 func _update_hud() -> void:
