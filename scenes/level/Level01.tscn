@@ -12,53 +12,238 @@ section_colors = Array[Color]([Color(0.11372549, 0.15294118, 0.1882353, 1), Colo
 
 [node name="Section1Background" type="Sprite2D" parent="."]
 position = Vector2(480, 780)
+scale = Vector2(0.6, 0.6)
 z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
-region_rect = Rect2(0, 0, 1440, 1560)
+region_rect = Rect2(0, 0, 2400, 2600)
 texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.7544, 0.8416, 0.92, 1)
 
 [node name="Section2Background" type="Sprite2D" parent="."]
 position = Vector2(480, 2340)
+scale = Vector2(0.6, 0.6)
 z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
-region_rect = Rect2(0, 1560, 1440, 1560)
+region_rect = Rect2(0, 2600, 2400, 2600)
 texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.7544, 0.92, 0.851, 1)
 
 [node name="Section3Background" type="Sprite2D" parent="."]
 position = Vector2(480, 3900)
+scale = Vector2(0.6, 0.6)
 z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
-region_rect = Rect2(0, 3120, 1440, 1560)
+region_rect = Rect2(0, 5200, 2400, 2600)
 texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.7986, 0.7544, 0.92, 1)
 
 [node name="Section4Background" type="Sprite2D" parent="."]
 position = Vector2(480, 5460)
+scale = Vector2(0.6, 0.6)
 z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
-region_rect = Rect2(0, 4680, 1440, 1560)
+region_rect = Rect2(0, 7800, 2400, 2600)
 texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.92, 0.8096, 0.7544, 1)
 
 [node name="Section5Background" type="Sprite2D" parent="."]
 position = Vector2(480, 7020)
+scale = Vector2(0.6, 0.6)
 z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
-region_rect = Rect2(0, 6240, 1440, 1560)
+region_rect = Rect2(0, 10400, 2400, 2600)
 texture_filter = 1
 texture_repeat = 2
 modulate = Color(0.7544, 0.8172, 0.92, 1)
+
+[node name="Section1WallDepthLeft" type="Sprite2D" parent="."]
+position = Vector2(-120, 780)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 0, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.891, 0.9431, 0.99, 1)
+
+[node name="Section1WallDepthRight" type="Sprite2D" parent="."]
+position = Vector2(1080, 780)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 0, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.891, 0.9431, 0.99, 1)
+
+[node name="Section2WallDepthLeft" type="Sprite2D" parent="."]
+position = Vector2(-120, 2340)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 975, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.891, 0.99, 0.9487, 1)
+
+[node name="Section2WallDepthRight" type="Sprite2D" parent="."]
+position = Vector2(1080, 2340)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 975, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.891, 0.99, 0.9487, 1)
+
+[node name="Section3WallDepthLeft" type="Sprite2D" parent="."]
+position = Vector2(-120, 3900)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 1950, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.9174, 0.891, 0.99, 1)
+
+[node name="Section3WallDepthRight" type="Sprite2D" parent="."]
+position = Vector2(1080, 3900)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 1950, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.9174, 0.891, 0.99, 1)
+
+[node name="Section4WallDepthLeft" type="Sprite2D" parent="."]
+position = Vector2(-120, 5460)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 2925, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.99, 0.924, 0.891, 1)
+
+[node name="Section4WallDepthRight" type="Sprite2D" parent="."]
+position = Vector2(1080, 5460)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 2925, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.99, 0.924, 0.891, 1)
+
+[node name="Section5WallDepthLeft" type="Sprite2D" parent="."]
+position = Vector2(-120, 7020)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 3900, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.891, 0.9286, 0.99, 1)
+
+[node name="Section5WallDepthRight" type="Sprite2D" parent="."]
+position = Vector2(1080, 7020)
+scale = Vector2(1.6, 1.6)
+z_index = -10
+texture = ExtResource("5_stone")
+region_enabled = true
+region_rect = Rect2(0, 3900, 150, 975)
+texture_filter = 1
+texture_repeat = 2
+modulate = Color(0.891, 0.9286, 0.99, 1)
+
+[node name="Section1WallDepthSeamLeft" type="Line2D" parent="."]
+position = Vector2(0, 780)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.3796, 0.4071, 0.4318, 1)
+
+[node name="Section1WallDepthSeamRight" type="Line2D" parent="."]
+position = Vector2(960, 780)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.3796, 0.4071, 0.4318, 1)
+
+[node name="Section2WallDepthSeamLeft" type="Line2D" parent="."]
+position = Vector2(0, 2340)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.4043, 0.4373, 0.4235, 1)
+
+[node name="Section2WallDepthSeamRight" type="Line2D" parent="."]
+position = Vector2(960, 2340)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.4043, 0.4373, 0.4235, 1)
+
+[node name="Section3WallDepthSeamLeft" type="Line2D" parent="."]
+position = Vector2(0, 3900)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.4318, 0.4208, 0.462, 1)
+
+[node name="Section3WallDepthSeamRight" type="Line2D" parent="."]
+position = Vector2(960, 3900)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.4318, 0.4208, 0.462, 1)
+
+[node name="Section4WallDepthSeamLeft" type="Line2D" parent="."]
+position = Vector2(0, 5460)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.4427, 0.4208, 0.4098, 1)
+
+[node name="Section4WallDepthSeamRight" type="Line2D" parent="."]
+position = Vector2(960, 5460)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.4427, 0.4208, 0.4098, 1)
+
+[node name="Section5WallDepthSeamLeft" type="Line2D" parent="."]
+position = Vector2(0, 7020)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.3878, 0.418, 0.4675, 1)
+
+[node name="Section5WallDepthSeamRight" type="Line2D" parent="."]
+position = Vector2(960, 7020)
+z_index = 1
+points = PackedVector2Array(0, -780, 0, 780)
+width = 4.0
+default_color = Color(0.3878, 0.418, 0.4675, 1)
 
 [node name="SafePlatform0" type="StaticBody2D" parent="." unique_id=231217680]
 position = Vector2(484, 294)
