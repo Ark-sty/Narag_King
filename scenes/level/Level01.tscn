@@ -5,242 +5,247 @@
 [ext_resource type="Script" uid="uid://de2vws2crfwsh" path="res://scripts/level/DiagonalRoute.gd" id="3_diagonal"]
 [ext_resource type="Script" uid="uid://2yba04w5km7q" path="res://scripts/level/GrabPoint.gd" id="4_point"]
 [ext_resource type="Texture2D" uid="uid://b03buic7vh043" path="res://sprite/stone_wall.png" id="5_stone"]
+[ext_resource type="PackedScene" path="res://scenes/level/Npc.tscn" id="6_q1wkh"]
+[ext_resource type="Texture2D" uid="uid://iae0mgp22lxm" path="res://sprite/npc/Virgil.png" id="7_hlnxp"]
+[ext_resource type="Texture2D" uid="uid://bkwt02cprwld8" path="res://sprite/npc/Gatekeeper.png" id="8_q62mx"]
+[ext_resource type="Texture2D" uid="uid://bw1njhsr7gsof" path="res://sprite/npc/Soul.png" id="9_pq13y"]
+[ext_resource type="Texture2D" uid="uid://dqgi43sl2w768" path="res://sprite/npc/Lucifer-2.png" id="10_pq13y"]
 
 [node name="Level01" type="Node2D" unique_id=1529245048]
 script = ExtResource("1_level")
 section_colors = Array[Color]([Color(0.11372549, 0.15294118, 0.1882353, 1), Color(0.14901961, 0.19607843, 0.1764706, 1), Color(0.1882353, 0.17254902, 0.23137255, 1), Color(0.20392157, 0.17254902, 0.15686275, 1), Color(0.1254902, 0.16862746, 0.23921569, 1)])
 
-[node name="Section1Background" type="Sprite2D" parent="."]
+[node name="Section1Background" type="Sprite2D" parent="." unique_id=1493348634]
+modulate = Color(0.7544, 0.8416, 0.92, 1)
+z_index = -20
+texture_filter = 1
+texture_repeat = 2
 position = Vector2(480, 780)
 scale = Vector2(0.6, 0.6)
-z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 0, 2400, 2600)
+
+[node name="Section2Background" type="Sprite2D" parent="." unique_id=81905311]
+modulate = Color(0.7544, 0.92, 0.851, 1)
+z_index = -20
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.7544, 0.8416, 0.92, 1)
-
-[node name="Section2Background" type="Sprite2D" parent="."]
 position = Vector2(480, 2340)
 scale = Vector2(0.6, 0.6)
-z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 2600, 2400, 2600)
+
+[node name="Section3Background" type="Sprite2D" parent="." unique_id=179735402]
+modulate = Color(0.7986, 0.7544, 0.92, 1)
+z_index = -20
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.7544, 0.92, 0.851, 1)
-
-[node name="Section3Background" type="Sprite2D" parent="."]
 position = Vector2(480, 3900)
 scale = Vector2(0.6, 0.6)
-z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 5200, 2400, 2600)
+
+[node name="Section4Background" type="Sprite2D" parent="." unique_id=957324378]
+modulate = Color(0.92, 0.8096, 0.7544, 1)
+z_index = -20
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.7986, 0.7544, 0.92, 1)
-
-[node name="Section4Background" type="Sprite2D" parent="."]
 position = Vector2(480, 5460)
 scale = Vector2(0.6, 0.6)
-z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 7800, 2400, 2600)
+
+[node name="Section5Background" type="Sprite2D" parent="." unique_id=1377418287]
+modulate = Color(0.7544, 0.8172, 0.92, 1)
+z_index = -20
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.92, 0.8096, 0.7544, 1)
-
-[node name="Section5Background" type="Sprite2D" parent="."]
 position = Vector2(480, 7020)
 scale = Vector2(0.6, 0.6)
-z_index = -20
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 10400, 2400, 2600)
+
+[node name="Section1WallSurfaceLeft" type="Sprite2D" parent="." unique_id=1210852163]
+modulate = Color(0.891, 0.9431, 0.99, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.7544, 0.8172, 0.92, 1)
-
-[node name="Section1WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 780)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 0, 150, 975)
+
+[node name="Section1WallSurfaceRight" type="Sprite2D" parent="." unique_id=2040835188]
+modulate = Color(0.891, 0.9431, 0.99, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.891, 0.9431, 0.99, 1)
-
-[node name="Section1WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 780)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 0, 150, 975)
+
+[node name="Section2WallSurfaceLeft" type="Sprite2D" parent="." unique_id=786775364]
+modulate = Color(0.891, 0.99, 0.9487, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.891, 0.9431, 0.99, 1)
-
-[node name="Section2WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 2340)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 975, 150, 975)
+
+[node name="Section2WallSurfaceRight" type="Sprite2D" parent="." unique_id=373422109]
+modulate = Color(0.891, 0.99, 0.9487, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.891, 0.99, 0.9487, 1)
-
-[node name="Section2WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 2340)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 975, 150, 975)
+
+[node name="Section3WallSurfaceLeft" type="Sprite2D" parent="." unique_id=2109317319]
+modulate = Color(0.9174, 0.891, 0.99, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.891, 0.99, 0.9487, 1)
-
-[node name="Section3WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 3900)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 1950, 150, 975)
+
+[node name="Section3WallSurfaceRight" type="Sprite2D" parent="." unique_id=2138662946]
+modulate = Color(0.9174, 0.891, 0.99, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.9174, 0.891, 0.99, 1)
-
-[node name="Section3WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 3900)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 1950, 150, 975)
+
+[node name="Section4WallSurfaceLeft" type="Sprite2D" parent="." unique_id=798267465]
+modulate = Color(0.99, 0.924, 0.891, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.9174, 0.891, 0.99, 1)
-
-[node name="Section4WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 5460)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 2925, 150, 975)
+
+[node name="Section4WallSurfaceRight" type="Sprite2D" parent="." unique_id=91269146]
+modulate = Color(0.99, 0.924, 0.891, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.99, 0.924, 0.891, 1)
-
-[node name="Section4WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 5460)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 2925, 150, 975)
+
+[node name="Section5WallSurfaceLeft" type="Sprite2D" parent="." unique_id=1339621092]
+modulate = Color(0.891, 0.9286, 0.99, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.99, 0.924, 0.891, 1)
-
-[node name="Section5WallSurfaceLeft" type="Sprite2D" parent="."]
 position = Vector2(-120, 7020)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 3900, 150, 975)
+
+[node name="Section5WallSurfaceRight" type="Sprite2D" parent="." unique_id=2685632]
+modulate = Color(0.891, 0.9286, 0.99, 1)
+z_index = -10
 texture_filter = 1
 texture_repeat = 2
-modulate = Color(0.891, 0.9286, 0.99, 1)
-
-[node name="Section5WallSurfaceRight" type="Sprite2D" parent="."]
 position = Vector2(1080, 7020)
 scale = Vector2(1.6, 1.6)
-z_index = -10
 texture = ExtResource("5_stone")
 region_enabled = true
 region_rect = Rect2(0, 3900, 150, 975)
-texture_filter = 1
-texture_repeat = 2
-modulate = Color(0.891, 0.9286, 0.99, 1)
 
-[node name="Section1WallSurfaceSeamLeft" type="Line2D" parent="."]
+[node name="Section1WallSurfaceSeamLeft" type="Line2D" parent="." unique_id=2009776836]
+z_index = 1
 position = Vector2(0, 780)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3796, 0.4071, 0.4318, 1)
 
-[node name="Section1WallSurfaceSeamRight" type="Line2D" parent="."]
+[node name="Section1WallSurfaceSeamRight" type="Line2D" parent="." unique_id=1500693958]
+z_index = 1
 position = Vector2(960, 780)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3796, 0.4071, 0.4318, 1)
 
-[node name="Section2WallSurfaceSeamLeft" type="Line2D" parent="."]
+[node name="Section2WallSurfaceSeamLeft" type="Line2D" parent="." unique_id=220344742]
+z_index = 1
 position = Vector2(0, 2340)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4043, 0.4373, 0.4235, 1)
 
-[node name="Section2WallSurfaceSeamRight" type="Line2D" parent="."]
+[node name="Section2WallSurfaceSeamRight" type="Line2D" parent="." unique_id=1574246787]
+z_index = 1
 position = Vector2(960, 2340)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4043, 0.4373, 0.4235, 1)
 
-[node name="Section3WallSurfaceSeamLeft" type="Line2D" parent="."]
+[node name="Section3WallSurfaceSeamLeft" type="Line2D" parent="." unique_id=1445428668]
+z_index = 1
 position = Vector2(0, 3900)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4318, 0.4208, 0.462, 1)
 
-[node name="Section3WallSurfaceSeamRight" type="Line2D" parent="."]
+[node name="Section3WallSurfaceSeamRight" type="Line2D" parent="." unique_id=379859296]
+z_index = 1
 position = Vector2(960, 3900)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4318, 0.4208, 0.462, 1)
 
-[node name="Section4WallSurfaceSeamLeft" type="Line2D" parent="."]
+[node name="Section4WallSurfaceSeamLeft" type="Line2D" parent="." unique_id=1315134743]
+z_index = 1
 position = Vector2(0, 5460)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4427, 0.4208, 0.4098, 1)
 
-[node name="Section4WallSurfaceSeamRight" type="Line2D" parent="."]
+[node name="Section4WallSurfaceSeamRight" type="Line2D" parent="." unique_id=607403880]
+z_index = 1
 position = Vector2(960, 5460)
-z_index = 1
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.4427, 0.4208, 0.4098, 1)
 
-[node name="Section5WallSurfaceSeamLeft" type="Line2D" parent="."]
-position = Vector2(0, 7020)
+[node name="Section5WallSurfaceSeamLeft" type="Line2D" parent="." unique_id=1463477100]
 z_index = 1
+position = Vector2(0, 7020)
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3878, 0.418, 0.4675, 1)
 
-[node name="Section5WallSurfaceSeamRight" type="Line2D" parent="."]
-position = Vector2(960, 7020)
+[node name="Section5WallSurfaceSeamRight" type="Line2D" parent="." unique_id=1636069638]
 z_index = 1
+position = Vector2(960, 7020)
 points = PackedVector2Array(0, -780, 0, 780)
 width = 4.0
 default_color = Color(0.3878, 0.418, 0.4675, 1)
@@ -753,3 +758,29 @@ script = ExtResource("4_point")
 grab_reach = 46.0
 color = Color(0.41568628, 0.84313726, 0.9411765, 1)
 highlight_color = Color(0.9411765, 0.78039217, 0.36862746, 1)
+
+[node name="Npc" parent="." unique_id=1921538948 instance=ExtResource("6_q1wkh")]
+position = Vector2(639, 280)
+texture = ExtResource("7_hlnxp")
+dialogue_text = "길을 잃었느냐."
+npc_name = "베르길리우스"
+
+[node name="Npc2" parent="." unique_id=407051485 instance=ExtResource("6_q1wkh")]
+position = Vector2(752, 2908)
+texture = ExtResource("8_q62mx")
+dialogue_text = "살아 있는 자가 어찌 여기까지 왔느냐."
+npc_name = "문지기"
+
+[node name="Npc3" parent="." unique_id=2092047660 instance=ExtResource("6_q1wkh")]
+position = Vector2(57, 5484)
+texture = ExtResource("9_pq13y")
+flip_h = true
+dialogue_text = "나를 보지 마라."
+npc_name = "죄인"
+
+[node name="Npc4" parent="." unique_id=1034859288 instance=ExtResource("6_q1wkh")]
+position = Vector2(913, 7354)
+texture = ExtResource("10_pq13y")
+flip_h = true
+dialogue_text = "..."
+npc_name = "???"
